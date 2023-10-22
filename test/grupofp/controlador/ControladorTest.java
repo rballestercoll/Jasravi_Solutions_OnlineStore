@@ -26,15 +26,37 @@ public class ControladorTest {
         assertTrue(controlador.getDatos().getListaClientes().getLista().stream().anyMatch(c -> c.getEmail().equals("cliente1@example.com")));
     }
 
-//    @Test
-//    public void testEntradaPedido() {
-//        String fechaString = "01/02/2020/12/25"; // Make sure it matches your pattern
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy/HH/mm");
-//        LocalDateTime fecha = LocalDateTime.parse(fechaString, formatter);
-//
-//        boolean pedidoExiste = controlador.entradaPedido(1, 5, fecha, "cliente1@example.com", "A001");
-//        assertTrue(pedidoExiste);
-//    }
+    @Test
+    public void testEntradaPedidoPedidoExistente() {
+        // Preparación
+        int numPedido = 1;
+        int cantidad = 5;
+        LocalDateTime fecha = LocalDateTime.now();
+        String email = "cliente1@example.com";
+        String id = "A001";
+
+        // Prueba la adición de un pedido existente
+        boolean pedidoExiste = controlador.entradaPedido(numPedido, cantidad, fecha, email, id);
+
+        // Verificación
+        assertFalse(pedidoExiste);
+    }
+
+    @Test
+    public void testEntradaPedidoPedidoNoExistente() {
+        // Preparación
+        int numPedido = 2;  // Número de pedido diferente
+        int cantidad = 5;
+        LocalDateTime fecha = LocalDateTime.now();
+        String email = "cliente2@example.com";  // Cliente no existente
+        String id = "B001";  // Artículo no existente
+
+        // Prueba la adición de un pedido no existente
+        boolean pedidoExiste = controlador.entradaPedido(numPedido, cantidad, fecha, email, id);
+
+        // Verificación
+        assertFalse(pedidoExiste);
+    }
 
 
     @Test

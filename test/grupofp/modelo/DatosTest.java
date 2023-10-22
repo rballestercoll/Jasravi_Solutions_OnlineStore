@@ -7,7 +7,6 @@ import grupofp.modelo.Cliente;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-
 public class DatosTest {
     private Datos datos;
 
@@ -28,12 +27,11 @@ public class DatosTest {
         assertTrue(datos.getListaClientes().getLista().stream().anyMatch(c -> c.getEmail().equals("cliente1@example.com")));
     }
 
-//    @Test
-//    public void testAniadirPedido() {
-//        LocalDateTime fecha = LocalDateTime.now();
-//        boolean pedidoExiste = datos.aniadirPedido(1, 5, fecha, "cliente1@example.com", "A001");
-//        assertTrue(pedidoExiste);
-//    }
+    @Test
+    public void testAniadirPedido() {
+        boolean pedidoExiste = datos.aniadirPedido(1, 5, LocalDateTime.now(), "cliente1@example.com", "A001");
+        assertFalse(pedidoExiste);
+    }
 
     @Test
     public void testEliminarPedido() {

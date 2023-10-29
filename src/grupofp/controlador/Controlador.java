@@ -51,7 +51,6 @@ public class Controlador{
             throw new EmailValidationException("El correo electrónico debe contener '@'");
         }
 
-        // Resto de tu lógica para agregar el cliente
         if (descuento != null) {
             datos.aniadirCliente(nombre, domicilio, nif, email, descuento);
         } else {

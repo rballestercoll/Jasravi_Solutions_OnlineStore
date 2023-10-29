@@ -36,15 +36,30 @@ public class Controlador{
         arrArticulos= datos.recorrerTodosArticulos();
         return arrArticulos;
     }
-
-    public void entradaCliente(String nombre, String domicilio, String nif, String email, Float descuento){
-        if(descuento != null){
-            datos.aniadirCliente(nombre, domicilio, nif, email, descuento);
-        }else {
-            datos.aniadirCliente(nombre, domicilio, nif, email, null);
+    public void entradaCliente(String nombre, String domicilio, String nif, String email, Float descuento) throws NIFValidationException, EmailValidationException {
+        // Validación del NIF
+        if (nif.length() >= 9) {
+            throw new NIFValidationException("El NIF no puede tener más de 9 dígitos.");
         }
 
+        // Validación del correo electrónico
+        if (email == null) {
+            throw new EmailValidationException("El correo electrónico no puede ser nulo");
+        }
+
+        if (!email.contains("@")) {
+            throw new EmailValidationException("El correo electrónico debe contener '@'");
+        }
+
+        // Resto de tu lógica para agregar el cliente
+        if (descuento != null) {
+            datos.aniadirCliente(nombre, domicilio, nif, email, descuento);
+        } else {
+            datos.aniadirCliente(nombre, domicilio, nif, email, null);
+        }
     }
+
+
     public ArrayList recogerTodosClientes(){
         ArrayList<String> arrClientes = new ArrayList<>();
         arrClientes= datos.recorrerTodosClientes();
@@ -95,4 +110,19 @@ public class Controlador{
         arrFiltroCliente = datos.filtroEnviado(email);
         return arrFiltroCliente;
     }
+
+    // EXCEPCIONES
+
+    public class EmailValidationException extends Exception {
+        public EmailValidationException(String message) {
+            super(message);
+        }
+    }
+
+    public class NIFValidationException extends Exception {
+        public NIFValidationException(String message) {
+            super(message);
+        }
+    }
+
 }

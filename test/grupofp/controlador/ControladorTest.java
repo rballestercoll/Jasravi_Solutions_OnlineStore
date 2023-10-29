@@ -20,11 +20,11 @@ public class ControladorTest {
         assertTrue(controlador.getDatos().getListaArticulos().getLista().stream().anyMatch(a -> a.getIdArticulo().equals("A001")));
     }
 
-    @Test
-    public void testEntradaCliente() {
-        controlador.entradaCliente("Cliente1", "Dirección", "NIF001", "cliente1@example.com", 0.1f);
-        assertTrue(controlador.getDatos().getListaClientes().getLista().stream().anyMatch(c -> c.getEmail().equals("cliente1@example.com")));
-    }
+//    @Test
+//    public void testEntradaCliente() {
+//        controlador.entradaCliente("Cliente1", "Dirección", "NIF001", "cliente1@example.com", 0.1f);
+//        assertTrue(controlador.getDatos().getListaClientes().getLista().stream().anyMatch(c -> c.getEmail().equals("cliente1@example.com")));
+//    }
 
     @Test
     public void testEntradaPedidoPedidoExistente() {

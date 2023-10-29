@@ -23,19 +23,26 @@ public class GestionOs {
             System.out.println("2. Gestión Clientes");
             System.out.println("3. Gestión Pedidos");
             System.out.println("0. Salir");
-            opcio = pedirOpcion();
-            switch (opcio) {
-                case '1':
-                    gestionArticulos();
-                    break;
-                case '2':
-                    gestionClientes();
-                    break;
-                case '3':
-                    gestionPedidos();
-                    break;
-                case '0':
-                    salir = true;
+            try {
+                opcio = pedirOpcion();
+                switch (opcio) {
+                    case '1':
+                        gestionArticulos();
+                        break;
+                    case '2':
+                        gestionClientes();
+                        break;
+                    case '3':
+                        gestionPedidos();
+                        break;
+                    case '0':
+                        salir = true;
+                        break;
+                    default:
+                        System.out.println("Opción no válida. Debe ser un número del 0 al 3.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Debe ingresar un número válido.");
             }
         } while (!salir);
     }
@@ -57,17 +64,17 @@ public class GestionOs {
             System.out.println("1. Añadir Articulo");
             System.out.println("2. Mostrar Articulos");
             System.out.println("0. Salir");
-            opcio = pedirOpcion();
-            switch (opcio) {
-                case '1':
-                    addArticulo();
-                    break;
-                case '2':
-                    mostrarArticulos();
-                    break;
-                case '0':
-                    cancelar = true;
-            }
+                opcio = pedirOpcion();
+                switch (opcio) {
+                    case '1':
+                        addArticulo();
+                        break;
+                    case '2':
+                        mostrarArticulos();
+                        break;
+                    case '0':
+                        cancelar = true;
+                }
         } while (!cancelar);
     }
 
@@ -127,39 +134,40 @@ public class GestionOs {
     }
 
     void addCliente() {
-        System.out.printf("Añade nombre del Cliente: ");
-        String nombre = teclado.nextLine();
-        System.out.println("Domicilio: ");
-        String domicilio = teclado.nextLine();
-        System.out.println("Nif: ");
-        String nif = teclado.nextLine();
-        System.out.println("Email: ");
-        String email = teclado.nextLine();
+        try {
+            System.out.printf("Añade nombre del Cliente: ");
+            String nombre = teclado.nextLine();
+            System.out.println("Domicilio: ");
+            String domicilio = teclado.nextLine();
+            System.out.println("Nif: ");
+            String nif = teclado.nextLine();
+            System.out.println("Email: ");
+            String email = teclado.nextLine();
 
-        String tipo;
-        do {
-            System.out.println("(1) Estandar, (2) Premium");
-            tipo = teclado.nextLine();
-        } while (!"12".contains(tipo));
-        switch (tipo) {
-            case "1":
-                controlador.entradaCliente(nombre, domicilio, nif, email, null);
-                System.out.println("Se ha añadido nuevo cliente Estandar");
-                break;
-            case "2":
-                System.out.println("Descuento: ");
-                float descuento = teclado.nextFloat();
-                /*
-                El descuento siempre es de 20 según el caso Práctico, pero para poder comprobar
-                si los métodos funcionan, pasaremos de forma variable el decuento
-                 */
-                teclado.nextLine();
+            String tipo;
+            do {
+                System.out.println("(1) Estandar, (2) Premium");
+                tipo = teclado.nextLine();
+            } while (!"12".contains(tipo));
 
-                controlador.entradaCliente(nombre, domicilio, nif,email, descuento);
-                System.out.println("Se ha añadido nuevo cliente Premium");
-                break;
+            switch (tipo) {
+                case "1":
+                    controlador.entradaCliente(nombre, domicilio, nif, email, null);
+                    System.out.println("Se ha añadido nuevo cliente Estandar");
+                    break;
+                case "2":
+                    System.out.println("Descuento: ");
+                    float descuento = teclado.nextFloat();
+                    teclado.nextLine();
+                    controlador.entradaCliente(nombre, domicilio, nif, email, descuento);
+                    System.out.println("Se ha añadido nuevo cliente Premium");
+                    break;
+            }
+        } catch (Controlador.NIFValidationException e) {
+            System.out.println("Error al ingresar el cliente (NIF): " + e.getMessage());
+        } catch (Controlador.EmailValidationException e) {
+            System.out.println("Error al ingresar el cliente (email): " + e.getMessage());
         }
-
     }
 
     void mostrarClientes(){
@@ -316,5 +324,11 @@ public class GestionOs {
         for(String f : fClienteEnviado){
             System.out.println(fClienteEnviado);
         }
+    }
+
+    // EXCEPCIONES
+    private char ControlMenu() {
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine().charAt(0);
     }
 }

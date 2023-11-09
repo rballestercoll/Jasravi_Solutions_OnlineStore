@@ -163,8 +163,9 @@ public class GestionOs {
                     System.out.println("Se ha añadido nuevo cliente Premium");
                     break;
             }
-        } catch (Controlador.NIFValidationException e) {
-            System.out.println("Error al ingresar el cliente (NIF): " + e.getMessage());
+
+//      }   catch (Controlador.NIFValidationException e) {
+//            System.out.println("Error al ingresar el cliente (NIF): " + e.getMessage());
         } catch (Controlador.EmailValidationException e) {
             System.out.println("Error al ingresar el cliente (email): " + e.getMessage());
         }
@@ -244,7 +245,7 @@ public class GestionOs {
 
         if(!existe){
             addCliente();
-            controlador.addClientePedido();
+            controlador.addClientePedido(numPedido, cantidad, fecha, email, id);
         }
         System.out.println("Se ha añadido el nuevo Pedido");
     }

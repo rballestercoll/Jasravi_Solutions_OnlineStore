@@ -36,11 +36,13 @@ public class Controlador{
         arrArticulos= datos.recorrerTodosArticulos();
         return arrArticulos;
     }
-    public void entradaCliente(String nombre, String domicilio, String nif, String email, Float descuento) throws NIFValidationException, EmailValidationException {
+    public void entradaCliente(String nombre, String domicilio, String nif, String email, Float descuento) throws EmailValidationException {
+        // Pdte añadir al throws NIFValidationException
+
         // Validación del NIF
-        if (nif.length() >= 9) {
-            throw new NIFValidationException("El NIF no puede tener más de 9 dígitos.");
-        }
+//        if (nif.length() >= 9) {
+//            throw new NIFValidationException("El NIF no puede tener más de 9 dígitos.");
+//        }
 
         // Validación del correo electrónico
         if (email == null) {
@@ -81,9 +83,9 @@ public class Controlador{
         return existe;
     }
 
-    public void addClientePedido(){
-        datos.aniadirClientePedido();
-    };
+    public void addClientePedido(int numPedido, int cantidad, LocalDateTime fecha, String email, String idArticulo) {
+        datos.aniadirClientePedido(numPedido, cantidad, fecha, email, idArticulo);
+    }
 
     public void eliminarPedido(int numPedido){
         datos.borrarPedido(numPedido);
@@ -118,10 +120,10 @@ public class Controlador{
         }
     }
 
-    public class NIFValidationException extends Exception {
-        public NIFValidationException(String message) {
-            super(message);
-        }
-    }
+//    public static class NIFValidationException extends Exception {
+//        public NIFValidationException(String message) {
+//            super(message);
+//        }
+//    }
 
 }

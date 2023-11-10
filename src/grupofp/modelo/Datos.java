@@ -342,7 +342,7 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
 
 
 
-    boolean existeCliente(String email) {
+    public boolean existeCliente(String email) {
 //        for (Cliente cli : listaClientes.lista) {
 //            if (cli.getEmail().equals(email)) {
 //                return true;

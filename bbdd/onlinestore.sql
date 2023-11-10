@@ -12,35 +12,39 @@ CREATE TABLE IF NOT EXISTS articulo (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS cliente (
-	idCliente int NOT NULL AUTO_INCREMENT,
     nombre varchar(40) NOT NULL,
     domicilio varchar(40) NOT NULL,
     nif varchar(40) NOT NULL,
     email varchar(40) NOT NULL,
-    PRIMARY KEY (idCliente)
+    PRIMARY KEY (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS clienteEstandar (
-	idEstandar int NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (idEstandar),
-    FOREIGN KEY (idEstandar) REFERENCES cliente (idCliente)
+	nombre varchar(40) NOT NULL,
+    domicilio varchar(40) NOT NULL,
+    nif varchar(40) NOT NULL,
+    email_estandar varchar(40) NOT NULL,
+    FOREIGN KEY (email_estandar) REFERENCES cliente (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS clientePremium (
-	idPremium int NOT NULL AUTO_INCREMENT,
-    descuento float NOT NULL,
-    PRIMARY KEY (idPremium),
-    FOREIGN KEY (idPremium) REFERENCES cliente (idCliente)
+	nombre varchar(40) NOT NULL,
+    domicilio varchar(40) NOT NULL,
+    nif varchar(40) NOT NULL,
+    descuento varchar(40) NOT NULL,
+    email_premium varchar(40) NOT NULL,
+    FOREIGN KEY (email_premium) REFERENCES cliente (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS pedido (
-	idPedido int NOT NULL AUTO_INCREMENT,
-    numPedido int NOT NULL,
+    num_pedido int NOT NULL,
     cantidad int NOT NULL,
     fecha date NOT NULL,
-    idCliente int NOT NULL,
-    idArticulo int NOT NULL,
-    PRIMARY KEY (idPedido),
-    FOREIGN KEY (idCliente) REFERENCES cliente (idCliente),
-    FOREIGN KEY (idArticulo) REFERENCES articulo (idArticulo)
+    fk_cliente_estandar varchar(40) NOT NULL,
+    fk_cliente_premium varchar(40) NOT NULL,
+    fk_articulo int NOT NULL,
+    PRIMARY KEY (num_pedido),
+    FOREIGN KEY (fk_cliente_estandar) REFERENCES clienteEstandar (email_estandar),
+    FOREIGN KEY (fk_cliente_premium) REFERENCES clientePremium (email_premium),
+    FOREIGN KEY (fk_articulo) REFERENCES articulo (idArticulo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

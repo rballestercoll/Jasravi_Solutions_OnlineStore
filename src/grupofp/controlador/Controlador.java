@@ -1,5 +1,6 @@
 package grupofp.controlador;
 
+import grupofp.dao.DAOException;
 import grupofp.modelo.Datos;
 
 import java.time.LocalDateTime;
@@ -29,38 +30,21 @@ public class Controlador{
 
     public void entradaArticulo(String id, String descripcion, float precio, float gastosEnvio, int tiempoPreparacion) {
         datos.aniadirArticulo(id, descripcion, precio, gastosEnvio, tiempoPreparacion);
-
     }
     public ArrayList recogerTodosArticulos(){
         ArrayList<String> arrArticulos = new ArrayList<>();
         arrArticulos= datos.recorrerTodosArticulos();
         return arrArticulos;
     }
-    public void entradaCliente(String nombre, String domicilio, String nif, String email, Float descuento) throws EmailValidationException {
-        // Pdte añadir al throws NIFValidationException
 
-        // Validación del NIF
-//        if (nif.length() >= 9) {
-//            throw new NIFValidationException("El NIF no puede tener más de 9 dígitos.");
-//        }
-
-        // Validación del correo electrónico
-        if (email == null) {
-            throw new EmailValidationException("El correo electrónico no puede ser nulo");
-        }
-
-        if (!email.contains("@")) {
-            throw new EmailValidationException("El correo electrónico debe contener '@'");
-        }
-
-        if (descuento != null) {
+    public void entradaCliente(String nombre, String domicilio, String nif, String email, Float descuento){
+        if(descuento != null){
             datos.aniadirCliente(nombre, domicilio, nif, email, descuento);
-        } else {
+        }else {
             datos.aniadirCliente(nombre, domicilio, nif, email, null);
         }
+
     }
-
-
     public ArrayList recogerTodosClientes(){
         ArrayList<String> arrClientes = new ArrayList<>();
         arrClientes= datos.recorrerTodosClientes();
@@ -83,9 +67,6 @@ public class Controlador{
         return existe;
     }
 
-    public void addClientePedido(int numPedido, int cantidad, LocalDateTime fecha, String email, String idArticulo) {
-        datos.aniadirClientePedido(numPedido, cantidad, fecha, email, idArticulo);
-    }
 
     public void eliminarPedido(int numPedido){
         datos.borrarPedido(numPedido);
@@ -110,6 +91,12 @@ public class Controlador{
         ArrayList<String> arrFiltroCliente = new ArrayList<>();
         arrFiltroCliente = datos.filtroEnviado(email);
         return arrFiltroCliente;
+    }
+    public boolean existeC(String email){
+        if(datos.existeCliente(email)){
+            return true;
+        }
+        return false;
     }
 
     // EXCEPCIONES

@@ -1,6 +1,6 @@
 package grupofp.vista;
 
-import grupofp.modelo.MySQLConnector;
+import grupofp.dao.DAOException;
 import java.sql.Connection;
 
 public class OnlineStore {
@@ -8,7 +8,7 @@ public class OnlineStore {
         GestionOs gestion = new GestionOs();
         gestion.inicio();
 
-        MySQLConnector connector = new MySQLConnector();
+        DAOException connector = new DAOException();
         Connection connection = connector.getConnection();
     }
 }

@@ -188,9 +188,8 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
 
         try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
             ResultSet resultSet = preparedStatement.executeQuery();
-
+            System.out.println("Procesando clientes...");
             while (resultSet.next()) {
-                System.out.println("Procesando un cliente...");
                 String nombre = resultSet.getString("nombre");
                 String domicilio = resultSet.getString("domicilio");
                 String nif = resultSet.getString("nif");

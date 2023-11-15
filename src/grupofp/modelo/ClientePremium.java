@@ -3,8 +3,8 @@ package grupofp.modelo;
 public class ClientePremium extends Cliente{
 
     private float descuento;
-    public ClientePremium(String nombre, String domicilio, String nif, String email, float descuento) {
-        super(nombre, domicilio, nif, email);
+    public ClientePremium(int id, String nombre, String domicilio, String nif, String email, float descuento) {
+        super(id, nombre, domicilio, nif, email);
         this.descuento=descuento;
     }
 

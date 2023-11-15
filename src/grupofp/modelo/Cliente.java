@@ -1,17 +1,27 @@
 package grupofp.modelo;
 
 public abstract class Cliente {
+    private int id;
     private String nombre;
     private String domicilio;
     private String nif;
     private String email;
 
 
-    public Cliente(String nombre, String domicilio, String nif, String email) {
+    public Cliente(int id, String nombre, String domicilio, String nif, String email) {
+        this.id = id;
         this.nombre = nombre;
         this.domicilio = domicilio;
         this.nif = nif;
         this.email = email;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -49,6 +59,7 @@ public abstract class Cliente {
     @Override
     public String toString() {
         return "Cliente{" +
+                "id=" + id +
                 "nombre='" + nombre + '\'' +
                 ", domicilio='" + domicilio + '\'' +
                 ", nif='" + nif + '\'' +

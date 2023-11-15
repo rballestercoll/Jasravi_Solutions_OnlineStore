@@ -1,8 +1,8 @@
 package grupofp.modelo;
 
 public class ClienteEstandar extends Cliente{
-    public ClienteEstandar(String nombre, String domicilio, String nif, String email) {
-        super(nombre, domicilio, nif, email);
+    public ClienteEstandar(int id, String nombre, String domicilio, String nif, String email) {
+        super(id, nombre, domicilio, nif, email);
     }
 
     @Override

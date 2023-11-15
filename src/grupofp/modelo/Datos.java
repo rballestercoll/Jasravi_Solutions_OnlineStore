@@ -14,11 +14,17 @@ public class Datos {
     private ListaClientes listaClientes;
     private ListaPedidos listaPedidos;
 
+    private ClienteEstandarDaoImpl cedi;
+    private ClientePremiumDaoImpl cpdi;
+
 
     public Datos() {
         listaArticulos = new ListaArticulos();
         listaClientes = new ListaClientes();
         listaPedidos = new ListaPedidos();
+
+        cedi = new ClienteEstandarDaoImpl();
+        cpdi = new ClientePremiumDaoImpl();
 
     }
 
@@ -58,23 +64,31 @@ public class Datos {
         return arrArticulos;
     }
 
-    public void aniadirCliente(String nombre, String domicilio, String nif, String email, Float descuento) {
+    public void aniadirCliente(int id, String nombre, String domicilio, String nif, String email, Float descuento) {
         if (descuento != null) {
-            listaClientes.add(new ClientePremium(nombre, domicilio, nif, email, descuento));
-        } else {
-            listaClientes.add(new ClienteEstandar(nombre, domicilio, nif, email));
-        }
+            //listaClientes.add(new ClientePremium(id, nombre, domicilio, nif, email, descuento));
+            cpdi.addCliente(new ClientePremium(id, nombre, domicilio, nif, email, descuento));
 
+        } else {
+            //listaClientes.add(new ClienteEstandar(id, nombre, domicilio, nif, email));
+            cedi.addCliente(new ClienteEstandar(id, nombre, domicilio, nif, email));
+        }
     }
 
-    public ArrayList recorrerTodosClientes(){
+    /*public ArrayList recorrerTodosClientes(){
         ArrayList<String> arrClientes = new ArrayList<>();
         for(Cliente listaClientes1 : listaClientes.lista){
             arrClientes.add(listaClientes1.toString());
         }
         return arrClientes;
+    }*/
+
+    public void recorrerTodosClientes() {
+        cedi.getAllClientes();
+        cpdi.getAllClientes();
     }
-    public ArrayList recorrerClienteE() {
+
+    /*public ArrayList recorrerClienteE() {
         ArrayList<String> arrClienteEstandar = new ArrayList<>();
         for (Cliente listaClientes1 : listaClientes.lista) {
             if (listaClientes1 instanceof ClienteEstandar) {
@@ -82,9 +96,13 @@ public class Datos {
             }
         }
         return arrClienteEstandar;
+    }*/
+
+    public void recorrerClienteE() {
+        cedi.getAllClientes();
     }
 
-    public ArrayList recorrerClienteP() {
+    /*public ArrayList recorrerClienteP() {
         ArrayList<String> arrClientePremium = new ArrayList<>();
         for (Cliente listaClientes1 : listaClientes.lista) {
             if (listaClientes1 instanceof ClientePremium) {
@@ -93,6 +111,10 @@ public class Datos {
 
         }
         return arrClientePremium;
+    }*/
+
+    public void recorrerClienteP() {
+        cpdi.getAllClientes();
     }
 
     public boolean aniadirPedido(int numPedido, int cantidad, LocalDateTime fecha, String email, String id) {

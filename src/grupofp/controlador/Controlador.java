@@ -36,9 +36,9 @@ public class Controlador{
         arrArticulos= datos.recorrerTodosArticulos();
         return arrArticulos;
     }
-    public void entradaCliente(String nombre, String domicilio, String nif, String email, Float descuento) throws NIFValidationException, EmailValidationException {
+    public void entradaCliente(int id, String nombre, String domicilio, String nif, String email, Float descuento) throws NIFValidationException, EmailValidationException {
         // Validación del NIF
-        if (nif.length() >= 9) {
+        if (nif.length() > 9) {
             throw new NIFValidationException("El NIF no puede tener más de 9 dígitos.");
         }
 
@@ -52,28 +52,41 @@ public class Controlador{
         }
 
         if (descuento != null) {
-            datos.aniadirCliente(nombre, domicilio, nif, email, descuento);
+            datos.aniadirCliente(id, nombre, domicilio, nif, email, descuento);
         } else {
-            datos.aniadirCliente(nombre, domicilio, nif, email, null);
+            datos.aniadirCliente(id, nombre, domicilio, nif, email, null);
         }
     }
 
 
-    public ArrayList recogerTodosClientes(){
+    /*public ArrayList recogerTodosClientes(){
         ArrayList<String> arrClientes = new ArrayList<>();
-        arrClientes= datos.recorrerTodosClientes();
+        datos.recorrerTodosClientes();
         return arrClientes;
+    }*/
+
+    public void recogerTodosClientes() {
+        datos.recorrerTodosClientes();
     }
-    public ArrayList recogerClienteEstandar(){
+
+    /*public ArrayList recogerClienteEstandar(){
         ArrayList<String> arrClienteEstandar = new ArrayList<>();
         arrClienteEstandar = datos.recorrerClienteE();
         return arrClienteEstandar;
+    }*/
+
+    public void recogerClienteEstandar() {
+        datos.recorrerClienteE();
     }
 
-    public ArrayList recogerClientePremium(){
+    /*public ArrayList recogerClientePremium(){
         ArrayList<String> arrClientePremium = new ArrayList<>();
         arrClientePremium = datos.recorrerClienteP();
         return arrClientePremium;
+    }*/
+
+    public void recogerClientePremium() {
+        datos.recorrerClienteP();
     }
 
     public boolean entradaPedido(int numPedido, int cantidad, LocalDateTime fecha, String email, String id) {

@@ -135,6 +135,8 @@ public class GestionOs {
 
     void addCliente() {
         try {
+            System.out.println("Añade el id del cliente: ");
+            int id = Integer.parseInt(teclado.nextLine());
             System.out.printf("Añade nombre del Cliente: ");
             String nombre = teclado.nextLine();
             System.out.println("Domicilio: ");
@@ -152,14 +154,14 @@ public class GestionOs {
 
             switch (tipo) {
                 case "1":
-                    controlador.entradaCliente(nombre, domicilio, nif, email, null);
+                    controlador.entradaCliente(id, nombre, domicilio, nif, email, null);
                     System.out.println("Se ha añadido nuevo cliente Estandar");
                     break;
                 case "2":
                     System.out.println("Descuento: ");
                     float descuento = teclado.nextFloat();
                     teclado.nextLine();
-                    controlador.entradaCliente(nombre, domicilio, nif, email, descuento);
+                    controlador.entradaCliente(id, nombre, domicilio, nif, email, descuento);
                     System.out.println("Se ha añadido nuevo cliente Premium");
                     break;
             }
@@ -171,24 +173,27 @@ public class GestionOs {
     }
 
     void mostrarClientes(){
-        ArrayList<String> cliT = controlador.recogerTodosClientes();
+        /*ArrayList<String> cliT = controlador.recogerTodosClientes();
         for(String cli : cliT){
             System.out.println(cli);
-        }
+        }*/
+        controlador.recogerTodosClientes();
     }
 
     void mostrarClientesEstandar(){
-        ArrayList<String> cliE = controlador.recogerClienteEstandar();
+        /*ArrayList<String> cliE = controlador.recogerClienteEstandar();
         for(String cli: cliE){
             System.out.println(cli);
-        }
+        }*/
+        controlador.recogerClienteEstandar();
     }
 
     void mostrarClientesPremium(){
-        ArrayList<String> cliP = controlador.recogerClientePremium();
+        /*ArrayList<String> cliP = controlador.recogerClientePremium();
         for(String cli: cliP){
             System.out.println(cli);
-        }
+        }*/
+        controlador.recogerClientePremium();
     }
 
     public void gestionPedidos(){

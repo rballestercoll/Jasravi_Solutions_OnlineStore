@@ -1,5 +1,6 @@
 package grupofp.controlador;
 
+import grupofp.dao.DAOException;
 import grupofp.modelo.Datos;
 
 import java.time.LocalDateTime;
@@ -29,13 +30,13 @@ public class Controlador{
 
     public void entradaArticulo(String id, String descripcion, float precio, float gastosEnvio, int tiempoPreparacion) {
         datos.aniadirArticulo(id, descripcion, precio, gastosEnvio, tiempoPreparacion);
-
     }
     public ArrayList recogerTodosArticulos(){
         ArrayList<String> arrArticulos = new ArrayList<>();
         arrArticulos= datos.recorrerTodosArticulos();
         return arrArticulos;
     }
+<<<<<<< HEAD
     public void entradaCliente(int id, String nombre, String domicilio, String nif, String email, Float descuento) throws NIFValidationException, EmailValidationException {
         // Validación del NIF
         if (nif.length() > 9) {
@@ -55,11 +56,24 @@ public class Controlador{
             datos.aniadirCliente(id, nombre, domicilio, nif, email, descuento);
         } else {
             datos.aniadirCliente(id, nombre, domicilio, nif, email, null);
+=======
+
+    public void entradaCliente(String nombre, String domicilio, String nif, String email, Float descuento){
+        if(descuento != null){
+            datos.aniadirCliente(nombre, domicilio, nif, email, descuento);
+        }else {
+            datos.aniadirCliente(nombre, domicilio, nif, email, null);
+>>>>>>> POO2BBDD_1511
         }
+
     }
+<<<<<<< HEAD
 
 
     /*public ArrayList recogerTodosClientes(){
+=======
+    public ArrayList recogerTodosClientes(){
+>>>>>>> POO2BBDD_1511
         ArrayList<String> arrClientes = new ArrayList<>();
         datos.recorrerTodosClientes();
         return arrClientes;
@@ -94,9 +108,6 @@ public class Controlador{
         return existe;
     }
 
-    public void addClientePedido(){
-        datos.aniadirClientePedido();
-    };
 
     public void eliminarPedido(int numPedido){
         datos.borrarPedido(numPedido);
@@ -122,6 +133,12 @@ public class Controlador{
         arrFiltroCliente = datos.filtroEnviado(email);
         return arrFiltroCliente;
     }
+    public boolean existeC(String email){
+        if(datos.existeCliente(email)){
+            return true;
+        }
+        return false;
+    }
 
     // EXCEPCIONES
 
@@ -131,10 +148,10 @@ public class Controlador{
         }
     }
 
-    public class NIFValidationException extends Exception {
-        public NIFValidationException(String message) {
-            super(message);
-        }
-    }
+//    public static class NIFValidationException extends Exception {
+//        public NIFValidationException(String message) {
+//            super(message);
+//        }
+//    }
 
 }

@@ -11,15 +11,13 @@ public class OnlineStore {
         GestionOs gestion = new GestionOs();
         gestion.inicio();
 
-
-
         // Conexion DAO ok
-        try (Connection connection = new MySQLDAOManager().conectar()) {
+        /*try (Connection connection = new MySQLDAOManager().conectar()) {
             // Código que utiliza la conexión
         } catch (SQLException e) {
             // Manejo de excepciones
             e.printStackTrace();
-        }
+        }*/
 
 
 

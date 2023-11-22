@@ -2,12 +2,10 @@ package grupofp.modelo;
 
 import grupofp.controlador.Controlador;
 
+import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /*
 La clase Datos es la clase principal del paquete del modelo, puesto que
@@ -169,6 +167,15 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
                         System.err.println("Error al agregar cliente premium a la base de datos: " + premiumException.getMessage());
                     }
                 }
+                else {
+                    String insertEstandarQuery = "INSERT INTO clienteestandar (idEstandar) VALUES (?)";
+                    try (PreparedStatement estandarPreparedStatement = dbConnection.prepareStatement(insertEstandarQuery)) {
+                        estandarPreparedStatement.setInt(1, idCliente);
+                        estandarPreparedStatement.executeUpdate();
+                    } catch (SQLException premiumException) {
+                        System.err.println("Error al agregar cliente premium a la base de datos: " + premiumException.getMessage());
+                    }
+                }
                 System.out.println("Cliente agregado con éxito a la base de datos.");
             }
         }
@@ -184,19 +191,23 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
 
     public ArrayList<String> recorrerTodosClientes() {
         ArrayList<String> arrClientes = new ArrayList<>();
-        String selectQuery = "SELECT cliente.*, clientePremium.descuento FROM cliente LEFT JOIN clientePremium ON cliente.idCliente = clientePremium.idPremium";
+        String selectQuery = "SELECT * from cliente";
 
         try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             System.out.println("Procesando clientes...");
             while (resultSet.next()) {
+                int id = resultSet.getInt("idCliente");
                 String nombre = resultSet.getString("nombre");
                 String domicilio = resultSet.getString("domicilio");
                 String nif = resultSet.getString("nif");
                 String email = resultSet.getString("email");
-                float descuento = resultSet.getFloat("descuento");
 
-                if (descuento > 0) {
+                //System.out.println("ID: " + id + " Nombre: " + nombre + " Domicilio: " + domicilio + " NIF: " + nif + " Email: " + email);
+
+                arrClientes.add("ID: " + id + " Nombre: " + nombre + " Domicilio: " + domicilio + " NIF: " + nif + " Email: " + email);
+
+                /*if (descuento > 0) {
                     arrClientes.add("Cliente Premium{" +
                             "Nombre: " + nombre +
                             " Domicilio: " + domicilio +
@@ -211,7 +222,7 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
                             " Nif: " + nif +
                             " Email: " + email +
                             '}');
-                }
+                }*/
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
@@ -221,22 +232,75 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
     }
     public ArrayList recorrerClienteE() {
         ArrayList<String> arrClienteEstandar = new ArrayList<>();
-        for (Cliente listaClientes1 : listaClientes.lista) {
+        /*for (Cliente listaClientes1 : listaClientes.lista) {
             if (listaClientes1 instanceof ClienteEstandar) {
                 arrClienteEstandar.add(listaClientes1.toString());
             }
+        }*/
+
+        String sql = "{call obtenerClientesEstandar()}";
+
+
+        try (CallableStatement callableStatement = dbConnection.prepareCall(sql)) {
+            boolean tieneResults = callableStatement.execute();
+
+            if (tieneResults) {
+                ResultSet resultSet = callableStatement.getResultSet();
+                System.out.println("Procesando clientes...");
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("idCliente");
+                    String nombre = resultSet.getString("nombre");
+                    String domicilio = resultSet.getString("domicilio");
+                    String nif = resultSet.getString("nif");
+                    String email = resultSet.getString("email");
+
+                    arrClienteEstandar.add("ID: " + id + " Nombre: " + nombre + " Domicilio: " + domicilio + " NIF: " + nif + " Email: " + email);
+
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
         }
+
+
         return arrClienteEstandar;
     }
 
     public ArrayList recorrerClienteP() {
         ArrayList<String> arrClientePremium = new ArrayList<>();
-        for (Cliente listaClientes1 : listaClientes.lista) {
+        /*for (Cliente listaClientes1 : listaClientes.lista) {
             if (listaClientes1 instanceof ClientePremium) {
                 arrClientePremium.add(listaClientes1.toString());
             }
 
+        }*/
+
+        String sql = "{call obtenerClientesPremium()}";
+
+
+        try (CallableStatement callableStatement = dbConnection.prepareCall(sql)) {
+            boolean tieneResults = callableStatement.execute();
+
+            if (tieneResults) {
+                ResultSet resultSet = callableStatement.getResultSet();
+                System.out.println("Procesando clientes...");
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("idCliente");
+                    String nombre = resultSet.getString("nombre");
+                    String domicilio = resultSet.getString("domicilio");
+                    String nif = resultSet.getString("nif");
+                    String email = resultSet.getString("email");
+                    float descuento = resultSet.getFloat("descuento");
+
+                    arrClientePremium.add("ID: " + id + " Nombre: " + nombre + " Domicilio: " + domicilio + " NIF: " + nif + " Email: " + email + " Descuento: " + descuento);
+
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
         }
+
+
         return arrClientePremium;
     }
 
@@ -457,10 +521,24 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
 
     public ArrayList<String> pendientes(){
         ArrayList<String> arrPedido = new ArrayList<>();
-        for(Pedido p : listaPedidos.lista){
-            if(p.pedidoEnviado() == false){
-                arrPedido.add(p.toString());
+
+        String selectQuery = "SELECT * from pedido";
+
+        try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            System.out.println("Procesando pedidos...");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("idPedido");
+                int numPedido = resultSet.getInt("numPedido");
+                int cantidad = resultSet.getInt("cantidad");
+                Date fecha = resultSet.getDate("fecha");
+                int idCliente = resultSet.getInt("idCliente");
+                int idArticulo = resultSet.getInt("idArticulo");
+
+                arrPedido.add("ID: " + id + " Número de pedido: " + numPedido + " Cantidad: " + cantidad + " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
             }
+        } catch (SQLException e) {
+            System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
         }
         return arrPedido;
     }

@@ -14,12 +14,12 @@ public class OnlineStore {
 
 
         // Conexion DAO ok
-        try (Connection connection = new MySQLDAOManager().conectar()) {
+        /*try (Connection connection = new MySQLDAOManager().conectar()) {
             // Código que utiliza la conexión
         } catch (SQLException e) {
             // Manejo de excepciones
             e.printStackTrace();
-        }
+        }*/
 
 
 

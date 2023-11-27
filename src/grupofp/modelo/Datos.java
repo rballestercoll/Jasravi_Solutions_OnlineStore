@@ -531,11 +531,16 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
                 int id = resultSet.getInt("idPedido");
                 int numPedido = resultSet.getInt("numPedido");
                 int cantidad = resultSet.getInt("cantidad");
-                Date fecha = resultSet.getDate("fecha");
+                LocalDate fecha = resultSet.getDate("fecha").toLocalDate();
                 int idCliente = resultSet.getInt("idCliente");
                 int idArticulo = resultSet.getInt("idArticulo");
 
-                arrPedido.add("ID: " + id + " Número de pedido: " + numPedido + " Cantidad: " + cantidad + " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
+                LocalDate hoy = LocalDate.now();
+                LocalDate ayer = hoy.minusDays(1);
+
+                if (fecha.isEqual(hoy) || fecha.isEqual(ayer)) {
+                    arrPedido.add("ID: " + id + " Número de pedido: " + numPedido + " Cantidad: " + cantidad + " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
@@ -553,12 +558,38 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
         return filtro;
     }
 
-    public ArrayList<String> enviados(){
+    /*public ArrayList<String> enviados(){
         ArrayList<String> arrPedido = new ArrayList<>();
         for(Pedido p : listaPedidos.lista){
             if(p.pedidoEnviado() == true){
                 arrPedido.add(p.toString());
             }
+        }
+        return arrPedido;
+    }*/
+
+    public ArrayList<String> enviados() {
+        ArrayList<String> arrPedido = new ArrayList<>();
+
+        String selectQuery = "SELECT * from pedido";
+
+        try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            System.out.println("Procesando pedidos...");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("idPedido");
+                int numPedido = resultSet.getInt("numPedido");
+                int cantidad = resultSet.getInt("cantidad");
+                LocalDate fecha = resultSet.getDate("fecha").toLocalDate();
+                int idCliente = resultSet.getInt("idCliente");
+                int idArticulo = resultSet.getInt("idArticulo");
+
+                if (fecha.isBefore(LocalDate.now().minusDays(1))) {
+                    arrPedido.add("ID: " + id + " Número de pedido: " + numPedido + " Cantidad: " + cantidad + " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
         }
         return arrPedido;
     }

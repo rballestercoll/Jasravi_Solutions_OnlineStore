@@ -269,9 +269,10 @@ public class GestionOs {
     }
     public void motrarTodosPendientes() {
         ArrayList<String> aTodosPend = controlador.todosPendientes();
-        for (String tP : aTodosPend) {
+        /*for (String tP : aTodosPend) {
             System.out.println(aTodosPend);
-        }
+        }*/
+        for (int i = 0; i < aTodosPend.size(); ++i) System.out.println(aTodosPend.get(i));
     }
     public void filtrarClientePend(){
         System.out.println("Introduce email del cliente: ");
@@ -304,9 +305,10 @@ public class GestionOs {
     }
     public void motrarTodosEnviados() {
         ArrayList<String> aTodosEnv = controlador.todosEnviados();
-        for (String tP : aTodosEnv) {
+        /*for (String tP : aTodosEnv) {
             System.out.println(aTodosEnv);
-        }
+        }*/
+        for (int i = 0; i < aTodosEnv.size(); ++i) System.out.println(aTodosEnv.get(i));
     }
     public void filtrarClienteEnv(){
         System.out.println("Introduce email del cliente: ");

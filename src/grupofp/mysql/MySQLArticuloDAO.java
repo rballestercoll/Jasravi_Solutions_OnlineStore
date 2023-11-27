@@ -32,10 +32,16 @@ public class MySQLArticuloDAO implements ArticuloDAO {
         return articulo;
     }
     @Override
-    public void insertar(Articulo a) throws DAOException{
+    public void insertar(Articulo a) throws DAOException {
         PreparedStatement stat = null;
+        Connection conn = null; // No uses la variable de instancia, crea una local.
+
         try {
             conn = new MySQLDAOManager().conectar();
+
+            // Deshabilitar auto-commit
+            conn.setAutoCommit(false);
+
             stat = conn.prepareStatement(INSERT);
             stat.setString(1, a.getIdArticulo());
             stat.setString(2, a.getDescripcion());
@@ -44,23 +50,40 @@ public class MySQLArticuloDAO implements ArticuloDAO {
             stat.setInt(5, a.getTiempoPreparacion());
             stat.executeUpdate();
 
-        } catch (SQLException ex){
+            // Confirmar la transacción
+            conn.commit();
+
+        } catch (SQLException ex) {
+            // Hacer rollback en caso de error
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException e) {
+                throw new DAOException("Error en rollback", e);
+            }
+
             throw new DAOException("Error en SQL", ex);
+
         } finally {
-            if(stat != null){
+            // Restaurar auto-commit y cerrar recursos
+            if (conn != null) {
                 try {
-                    stat.close();
-                } catch (SQLException ex){
-                    throw new DAOException("Error en SQL", ex);
+                    conn.setAutoCommit(true);
+                    conn.close();
+                    System.out.println("Se ha desconectado de la bbdd");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
-        }
-        try {
-            conn.close();
-            System.out.println("Se ha desconectado de la bbdd");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            if (stat != null) {
+                try {
+                    stat.close();
+                } catch (SQLException ex) {
+                    throw new DAOException("Error en SQL", ex);
+                }
+            }
         }
     }
 
@@ -76,77 +99,138 @@ public class MySQLArticuloDAO implements ArticuloDAO {
 
     @Override
     public List<Articulo> obtenerTodos() throws DAOException {
-        conn = new MySQLDAOManager().conectar();
+        Connection conn = null;
         PreparedStatement stat = null;
         ResultSet rs = null;
         List<Articulo> articulos = new ArrayList<>();
-        try{
+
+        try {
+            conn = new MySQLDAOManager().conectar();
+
+            // Deshabilitar auto-commit
+            conn.setAutoCommit(false);
+
             stat = conn.prepareStatement(GETALL);
             rs = stat.executeQuery();
-            while (rs.next()){
+
+            while (rs.next()) {
                 articulos.add(convertir(rs));
             }
-        } catch (SQLException ex){
+
+            // Confirmar la transacción si va bien
+            conn.commit();
+
+        } catch (SQLException ex) {
+            // Hacer rollback en caso de error
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException e) {
+                throw new DAOException("Error en rollback", e);
+            }
+
             throw new DAOException("Error en SQL", ex);
+
         } finally {
-            if (rs != null){
+            // Restaurar auto-commit y cerrar recursos
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                    System.out.println("Se ha desconectado de la bbdd");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            if (rs != null) {
                 try {
                     rs.close();
-                } catch (SQLException ex){
-                    new DAOException("Error en SQL", ex);
+                } catch (SQLException ex) {
+                    throw new DAOException("Error en SQL", ex);
                 }
             }
-            if (stat != null){
+
+            if (stat != null) {
                 try {
                     stat.close();
-                } catch (SQLException ex){
-                    new DAOException("Error en SQL", ex);
+                } catch (SQLException ex) {
+                    throw new DAOException("Error en SQL", ex);
                 }
-            }try {
-                conn.close();
-                System.out.println("Se ha desconectado de la bbdd");
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
         }
+
         return articulos;
     }
 
     @Override
     public Articulo obtener(String idArticulo) throws DAOException {
-        conn = new MySQLDAOManager().conectar();
+        Connection conn = null;
         PreparedStatement stat = null;
         ResultSet rs = null;
         Articulo a = null;
-        try{
+
+        try {
+            conn = new MySQLDAOManager().conectar();
+
+            // Deshabilitar auto-commit
+            conn.setAutoCommit(false);
+
             stat = conn.prepareStatement(GETONE);
             stat.setString(1, idArticulo);
             rs = stat.executeQuery();
-            System.out.println("Hace la query");
-            if(rs.next()){
+
+            if (rs.next()) {
                 a = convertir(rs);
             } else {
                 throw new DAOException("No se ha encontrado ese registro.");
             }
 
-        }catch (SQLException ex){
+            // Confirmar la transacción si va bien
+            conn.commit();
+
+        } catch (SQLException ex) {
+            // Hacer rollback en caso de error
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException e) {
+                throw new DAOException("Error en rollback", e);
+            }
+
             throw new DAOException("Error en SQL", ex);
-        }finally {
-            if(rs != null){
-                try{
-                    rs.close();
-                }catch (SQLException ex){
-                    new DAOException("Error en SQL", ex);
+
+        } finally {
+            // Restaurar auto-commit y cerrar recursos
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                    System.out.println("Se ha desconectado de la bbdd");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
             }
-            if(stat != null){
-                try{
+
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    throw new DAOException("Error en SQL", ex);
+                }
+            }
+
+            if (stat != null) {
+                try {
                     stat.close();
-                }catch (SQLException ex){
-                    new DAOException("Error en SQL", ex);
+                } catch (SQLException ex) {
+                    throw new DAOException("Error en SQL", ex);
                 }
             }
         }
+
         return a;
     }
    /* public static void main(String[] args) throws DAOException, SQLException {

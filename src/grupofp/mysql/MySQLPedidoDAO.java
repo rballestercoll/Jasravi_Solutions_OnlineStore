@@ -13,6 +13,7 @@ public class MySQLPedidoDAO implements PedidoDAO {
     final String INSERT = "INSERT INTO pedido (num_pedido, cantidad, fecha, fk_cliente, fk_articulo) VALUES (?,?,?,?,?);";
     final String GETALL = "SELECT num_pedido, cantidad, fecha, fk_cliente, fk_articulo FROM pedido";
     final String GETONE = "SELECT num_pedido, cantidad, fecha, fk_cliente, fk_articulo FROM pedido WHERE num_pedido = ?";
+    final String UPDATE = "UPDATE pedido SET cantidad=?, fecha=?, fk_cliente=?, fk_articulo=? WHERE num_pedido=?";
     final String DELETE = "DELETE FROM pedido WHERE num_pedido = ?";
     final String SELECT_FECHA = "SELECT fecha FROM pedido WHERE num_pedido = ?";
     final String SELECT_ARTICULO = "SELECT num_pedido, cantidad, fecha, fk_cliente, fk_articulo FROM pedido WHERE num_pedido = ?";
@@ -100,8 +101,60 @@ public class MySQLPedidoDAO implements PedidoDAO {
 
 
     @Override
-    public void modificar(Pedido a) {
+    public void modificar(Pedido p) throws DAOException {
+        PreparedStatement stat = null;
+        Connection conn = null;
 
+        try {
+            conn = new MySQLDAOManager().conectar();
+
+            // Deshabilitar auto-commit
+            conn.setAutoCommit(false);
+
+            stat = conn.prepareStatement(UPDATE);
+            stat.setInt(1, p.getCantidad());
+            Timestamp fecha_pedido = cambiarFechaSQL(p.getFecha());
+            stat.setTimestamp(2, fecha_pedido);
+            stat.setString(3, p.getCliente().getEmail());
+            stat.setString(4, p.getArticulo().getIdArticulo());
+            stat.setInt(5, p.getNumPedido());
+            stat.executeUpdate();
+
+            // Confirmar la transacción si todo va bien
+            conn.commit();
+
+        } catch (SQLException ex) {
+            // Hacer rollback en caso de error
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException e) {
+                throw new DAOException("Error en rollback", e);
+            }
+
+            throw new DAOException("Error en SQL", ex);
+
+        } finally {
+            // Restaurar auto-commit y cerrar recursos
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                    System.out.println("Se ha desconectado de la bbdd");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            if (stat != null) {
+                try {
+                    stat.close();
+                } catch (SQLException ex) {
+                    throw new DAOException("Error en SQL", ex);
+                }
+            }
+        }
     }
 
     @Override

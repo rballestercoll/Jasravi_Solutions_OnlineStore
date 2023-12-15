@@ -1,11 +1,17 @@
 package grupofp.modelo;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "cliente")
 public abstract class Cliente {
+    @Id
     private String nombre;
     private String domicilio;
     private String nif;
     private String email;
-
 
     public Cliente(String nombre, String domicilio, String nif, String email) {
         this.nombre = nombre;

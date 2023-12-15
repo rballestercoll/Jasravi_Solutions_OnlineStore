@@ -1,11 +1,17 @@
 package grupofp.modelo;
 
 import grupofp.controlador.Controlador;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 /*
 La clase Datos es la clase principal del paquete del modelo, puesto que
@@ -20,6 +26,8 @@ public class Datos {
     // Variable de MySQLConnector class para conectar a la BBDD
     private Connection dbConnection;
 
+    private SessionFactory sessionFactory;
+
 
     public Datos() {
 
@@ -28,6 +36,8 @@ public class Datos {
         MySQLConnector connector = new MySQLConnector();
         dbConnection = connector.getConnection();
 
+        Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+        sessionFactory = configuration.buildSessionFactory();
 
         listaArticulos = new ListaArticulos();
         listaClientes = new ListaClientes();
@@ -75,7 +85,7 @@ public class Datos {
 //    }
 
 public void aniadirArticulo(String id, String descripcion, float precio, float gastosEnvio, int tiempoPreparacion) {
-    String insertQuery = "INSERT INTO articulo (idArticulo, descripcion, precio, gastosEnvio, tiempoPreparacion) VALUES (?, ?, ?, ?, ?)";
+    /*String insertQuery = "INSERT INTO articulo (idArticulo, descripcion, precio, gastosEnvio, tiempoPreparacion) VALUES (?, ?, ?, ?, ?)";
 
     try (PreparedStatement preparedStatement = dbConnection.prepareStatement(insertQuery)) {
         preparedStatement.setString(1, id);
@@ -90,11 +100,26 @@ public void aniadirArticulo(String id, String descripcion, float precio, float g
         }
     } catch (SQLException e) {
         System.err.println("Error al agregar artículo a la base de datos: " + e.getMessage());
+    }*/
+    Articulo nuevoArticulo = new Articulo(id, descripcion, precio, gastosEnvio, tiempoPreparacion);
+
+    // Abre la sesión de Hibernate
+    try (Session session = sessionFactory.openSession()) {
+        // Inicia la transacción
+        Transaction transaction = session.beginTransaction();
+
+        // Guarda el nuevo Articulo en la base de datos
+        session.save(nuevoArticulo);
+
+        // Confirma la transacción
+        transaction.commit();
+    } catch (Exception e) {
+        e.printStackTrace();
     }
 }
 public ArrayList<String> recorrerTodosArticulos() {
     ArrayList<String> arrArticulos = new ArrayList<>();
-    String selectQuery = "SELECT * FROM articulo";
+    /*String selectQuery = "SELECT * FROM articulo";
 
     try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -117,7 +142,40 @@ public ArrayList<String> recorrerTodosArticulos() {
         }
     } catch (SQLException e) {
         System.err.println("Error al recuperar los artículos de la base de datos: " + e.getMessage());
+    }*/
+
+    try (Session session = sessionFactory.openSession()) {
+        // Comienza la transacción
+        Transaction transaction = session.beginTransaction();
+
+        // Ejemplo de recuperación de todos los registros de la tabla Articulo
+        Query<Articulo> query = session.createQuery("FROM Articulo", Articulo.class);
+        List<Articulo> articulos = query.list();
+
+        // Procesa los registros recuperados
+        for (Articulo articulo : articulos) {
+            String idArticulo = articulo.getIdArticulo();
+            String descripcion = articulo.getDescripcion();
+            float precio = articulo.getPrecio();
+            float gastosEnvio = articulo.getGastosEnvio();
+            int tiempoPreparacion = articulo.getTiempoPreparacion();
+
+            String articuloInfo = "Articulo{" +
+                    "idArticulo='" + idArticulo + '\'' +
+                    ", descripcion='" + descripcion + '\'' +
+                    ", precio=" + precio +
+                    ", gastosEnvio=" + gastosEnvio +
+                    ", tiempoPreparacion=" + tiempoPreparacion +
+                    '}';
+            arrArticulos.add(articuloInfo);
+        }
+
+        // Finaliza la transacción
+        transaction.commit();
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+
 
     return arrArticulos;
 }

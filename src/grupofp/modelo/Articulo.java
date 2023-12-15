@@ -1,10 +1,23 @@
 package grupofp.modelo;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "articulo")
 public class Articulo{
+    @Id
+    @Column(name = "idArticulo")
     private String idArticulo;
+    @Column(name = "descripcion")
     private String descripcion;
+    @Column(name = "precio")
     private float precio;
+    @Column(name = "gastosEnvio")
     private float gastosEnvio;
+    @Column(name = "tiempoPreparacion")
     private int tiempoPreparacion;
 
     public Articulo(){}

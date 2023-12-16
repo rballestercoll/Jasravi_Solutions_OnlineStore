@@ -198,16 +198,17 @@ public ArrayList<String> recorrerTodosArticulos() {
 //        return arrClientes;
 //    }
 public void aniadirCliente(String nombre, String domicilio, String nif, String email, Float descuento) {
-    try {
+    /*try {
         // validarNIF(nif);
 
-        String insertQuery = "INSERT INTO cliente (nombre, domicilio, nif, email) VALUES (?, ?, ?, ?)";
+        String insertQuery = "INSERT INTO cliente (idCliente, nombre, domicilio, nif, email) VALUES (?, ?, ?, ?, ?)";
 
     try (PreparedStatement preparedStatement = dbConnection.prepareStatement(insertQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
-        preparedStatement.setString(1, nombre);
-        preparedStatement.setString(2, domicilio);
-        preparedStatement.setString(3, nif);
-        preparedStatement.setString(4, email);
+        preparedStatement.setInt(1, id);
+        preparedStatement.setString(2, nombre);
+        preparedStatement.setString(3, domicilio);
+        preparedStatement.setString(4, nif);
+        preparedStatement.setString(5, email);
 
         int rowsAffected = preparedStatement.executeUpdate();
         if (rowsAffected > 0) {
@@ -240,10 +241,32 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
     }
     } catch (SQLException e) {
         System.err.println("Error al agregar cliente a la base de datos: " + e.getMessage());
-    }
+    }*/
 //     catch (Controlador.NIFValidationException e) {
 //        throw new RuntimeException(e);
 //    }
+
+    Cliente nuevoCliente = null;
+    if (descuento != null) {
+        nuevoCliente = new ClientePremium(nombre, domicilio, nif, email, descuento);
+    }
+    else {
+        nuevoCliente = new ClienteEstandar(nombre, domicilio, nif, email);
+    }
+
+    // Abre la sesión de Hibernate
+    try (Session session = sessionFactory.openSession()) {
+        // Inicia la transacción
+        Transaction transaction = session.beginTransaction();
+
+        // Guarda el nuevo Cliente en la base de datos
+        session.save(nuevoCliente);
+
+        // Confirma la transacción
+        transaction.commit();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 }
 
 

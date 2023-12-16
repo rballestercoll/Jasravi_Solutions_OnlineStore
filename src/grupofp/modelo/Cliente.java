@@ -1,16 +1,22 @@
 package grupofp.modelo;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "cliente")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Cliente {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idCliente")
+    private int id;
+    @Column(name = "nombre")
     private String nombre;
+    @Column(name = "domicilio")
     private String domicilio;
+    @Column(name = "nif")
     private String nif;
+    @Column(name = "email")
     private String email;
 
     public Cliente(String nombre, String domicilio, String nif, String email) {

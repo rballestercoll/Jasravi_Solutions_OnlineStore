@@ -21,16 +21,16 @@ CREATE TABLE IF NOT EXISTS cliente (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS clienteEstandar (
-	idEstandar int NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (idEstandar),
-    FOREIGN KEY (idEstandar) REFERENCES cliente (idCliente)
+	idCliente int NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (idCliente),
+    FOREIGN KEY (idCliente) REFERENCES cliente (idCliente)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS clientePremium (
-	idPremium int NOT NULL AUTO_INCREMENT,
+	idCliente int NOT NULL AUTO_INCREMENT,
     descuento float NOT NULL,
-    PRIMARY KEY (idPremium),
-    FOREIGN KEY (idPremium) REFERENCES cliente (idCliente)
+    PRIMARY KEY (idCliente),
+    FOREIGN KEY (idCliente) REFERENCES cliente (idCliente)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS pedido (

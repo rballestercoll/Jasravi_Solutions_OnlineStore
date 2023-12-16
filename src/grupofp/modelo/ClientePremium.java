@@ -1,7 +1,14 @@
 package grupofp.modelo;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "clientepremium")
 public class ClientePremium extends Cliente{
 
+    @Column(name = "descuento")
     private float descuento;
     public ClientePremium(String nombre, String domicilio, String nif, String email, float descuento) {
         super(nombre, domicilio, nif, email);

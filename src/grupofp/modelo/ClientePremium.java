@@ -15,6 +15,8 @@ public class ClientePremium extends Cliente{
         this.descuento=descuento;
     }
 
+    public ClientePremium() {}
+
     public float getDescuento() {
         return descuento;
     }

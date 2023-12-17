@@ -10,6 +10,10 @@ public class ClienteEstandar extends Cliente{
         super(nombre, domicilio, nif, email);
     }
 
+    public ClienteEstandar() {
+        super();
+    }
+
     @Override
     public String toString() {
         return "Cliente Estándar{" +

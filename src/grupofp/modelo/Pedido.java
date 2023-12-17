@@ -1,13 +1,28 @@
 package grupofp.modelo;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "pedido")
 public class Pedido {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idPedido")
+    private int id;
+    @Column(name = "numPedido")
     private int numPedido;
+    @Column(name = "cantidad")
     private int cantidad;
+    @Column(name = "fecha")
     private LocalDateTime fecha;
+    @ManyToOne
+    @JoinColumn(name = "idCliente")
     private Cliente cliente;
+    @ManyToOne
+    @JoinColumn(name = "idArticulo")
     private Articulo articulo;
 
     public Pedido (int numPedido, int cantidad, LocalDateTime fecha, Cliente cliente, Articulo articulo){

@@ -26,6 +26,12 @@ public abstract class Cliente {
         this.email = email;
     }
 
+    public Cliente() {
+
+    }
+
+    public int getId() {return id;}
+    public void setId(int id) {this.id = id;}
     public String getNombre() {
         return nombre;
     }

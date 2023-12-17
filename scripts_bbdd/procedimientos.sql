@@ -2,7 +2,7 @@ DELIMITER //
 create procedure obtenerClientesEstandar()
 begin
 	select * from cliente inner join clienteestandar
-    on cliente.idCliente = clienteestandar.idEstandar;
+    on cliente.idCliente = clienteestandar.idCliente;
 end //
 DELIMITER ;
 
@@ -10,7 +10,7 @@ DELIMITER //
 create procedure obtenerClientesPremium()
 begin
 	select * from cliente inner join clientepremium
-    on cliente.idCliente = clientepremium.idPremium;
+    on cliente.idCliente = clientepremium.idCliente;
 end //
 DELIMITER ;
 

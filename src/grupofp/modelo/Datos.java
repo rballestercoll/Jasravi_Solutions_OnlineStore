@@ -5,7 +5,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.procedure.ProcedureCall;
+import org.hibernate.procedure.ProcedureOutputs;
 import org.hibernate.query.Query;
+import org.hibernate.result.ResultSetOutput;
+
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -272,7 +276,7 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
 
     public ArrayList<String> recorrerTodosClientes() {
         ArrayList<String> arrClientes = new ArrayList<>();
-        String selectQuery = "SELECT * from cliente";
+        /*String selectQuery = "SELECT * from cliente";
 
         try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -303,10 +307,41 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
                             " Nif: " + nif +
                             " Email: " + email +
                             '}');
-                }*/
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
+        }*/
+
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            Query<Cliente> query = session.createQuery("FROM Cliente", Cliente.class);
+            List<Cliente> clientes = query.list();
+
+            // Procesa los registros recuperados
+            for (Cliente cliente : clientes) {
+                int idCliente = cliente.getId();
+                String nombre = cliente.getNombre();
+                String domicilio = cliente.getDomicilio();
+                String nif = cliente.getNif();
+                String email = cliente.getEmail();
+
+                String clienteInfo = "Cliente{" +
+                        "idCliente='" + idCliente + '\'' +
+                        ", nombre='" + nombre + '\'' +
+                        ", domicilio=" + domicilio +
+                        ", nif=" + nif +
+                        ", email=" + email +
+                        '}';
+                arrClientes.add(clienteInfo);
+            }
+
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return arrClientes;
@@ -319,7 +354,7 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
             }
         }*/
 
-        String sql = "{call obtenerClientesEstandar()}";
+        /*String sql = "{call obtenerClientesEstandar()}";
 
 
         try (CallableStatement callableStatement = dbConnection.prepareCall(sql)) {
@@ -341,6 +376,34 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
+        }*/
+
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            ProcedureCall procedureCall = session.createStoredProcedureCall("obtenerClientesEstandar");
+
+            ProcedureOutputs procedureOutputs = procedureCall.getOutputs();
+            ResultSetOutput resultSetOutput = (ResultSetOutput) procedureOutputs.getCurrent();
+
+            // Procesa los registros recuperados
+            resultSetOutput.getResultList().forEach(row -> {
+                if (row instanceof Object[]) {
+                    Object[] columns = (Object[]) row;
+                    int id = (int)columns[0];
+                    String nombre = (String)columns[1];
+                    String domicilio = (String)columns[2];
+                    String nif = (String)columns[3];
+                    String email = (String)columns[4];
+
+                    arrClienteEstandar.add("ID: " + id + " Nombre: " + nombre + " Domicilio: " + domicilio + " NIF: " + nif + " Email: " + email);
+                }
+            });
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
 
@@ -356,7 +419,7 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
 
         }*/
 
-        String sql = "{call obtenerClientesPremium()}";
+        /*String sql = "{call obtenerClientesPremium()}";
 
 
         try (CallableStatement callableStatement = dbConnection.prepareCall(sql)) {
@@ -379,8 +442,35 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
-        }
+        }*/
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
 
+            ProcedureCall procedureCall = session.createStoredProcedureCall("obtenerClientesPremium");
+
+            ProcedureOutputs procedureOutputs = procedureCall.getOutputs();
+            ResultSetOutput resultSetOutput = (ResultSetOutput) procedureOutputs.getCurrent();
+
+            // Procesa los registros recuperados
+            resultSetOutput.getResultList().forEach(row -> {
+                if (row instanceof Object[]) {
+                    Object[] columns = (Object[]) row;
+                    int id = (int)columns[0];
+                    String nombre = (String)columns[1];
+                    String domicilio = (String)columns[2];
+                    String nif = (String)columns[3];
+                    String email = (String)columns[4];
+                    float descuento = (float)columns[6];
+
+                    arrClientePremium.add("ID: " + id + " Nombre: " + nombre + " Domicilio: " + domicilio + " NIF: " + nif + " Email: " + email + " Descuento: " + descuento);
+                }
+            });
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return arrClientePremium;
     }

@@ -491,6 +491,8 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
 //        return false;
 //    }
 
+/*    17/12 - 17:07
+
     public boolean aniadirPedido(int numPedido, int cantidad, LocalDateTime fecha, String email, String id) {
         String selectClienteQuery = "SELECT idCliente FROM cliente WHERE email = ?";
         String selectArticuloQuery = "SELECT idArticulo FROM articulo WHERE idArticulo = ?";
@@ -542,7 +544,81 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
         }
 
         return false;
+    }*/
+
+    public boolean aniadirPedido(int numPedido, int cantidad, LocalDateTime fecha, String email, String id) {
+        Cliente cliente = obtenerClientePorEmail(email);
+        Articulo articulo = obtenerArticuloPorId(id);
+
+        if (cliente != null && articulo != null) {
+            Pedido nuevoPedido = new Pedido(numPedido, cantidad, fecha, cliente, articulo);
+
+            // Abre la sesión de Hibernate
+            try (Session session = sessionFactory.openSession()) {
+                // Inicia la transacción
+                Transaction transaction = session.beginTransaction();
+
+                // Guarda el nuevo Pedido en la base de datos
+                session.save(nuevoPedido);
+
+                // Confirma la transacción
+                transaction.commit();
+                System.out.println("Pedido agregado con éxito a la base de datos.");
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("Error al agregar pedido a la base de datos: " + e.getMessage());
+            }
+        } else {
+            System.err.println("No se pudo agregar el pedido porque el cliente o el artículo no fueron encontrados.");
+        }
+
+        return false;
     }
+
+    private Cliente obtenerClientePorEmail(String email) {
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            Query<Cliente> query = session.createQuery("FROM Cliente WHERE email = :email", Cliente.class);
+            query.setParameter("email", email);
+            Cliente cliente = query.uniqueResult();
+
+            // Finaliza la transacción
+            transaction.commit();
+
+            return cliente;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error al obtener cliente por email: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+
+    private Articulo obtenerArticuloPorId(String id) {
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            Query<Articulo> query = session.createQuery("FROM Articulo WHERE idArticulo = :id", Articulo.class);
+            query.setParameter("id", id);
+            Articulo articulo = query.uniqueResult();
+
+            // Finaliza la transacción
+            transaction.commit();
+
+            return articulo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error al obtener artículo por ID: " + e.getMessage());
+        }
+
+        return null;
+    }
+
 
 
     public Articulo dameArticulo(String id){
@@ -690,6 +766,7 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
     }
 
 
+/*  17/12 - 17:07
     public ArrayList<String> pendientes(){
         ArrayList<String> arrPedido = new ArrayList<>();
 
@@ -716,6 +793,41 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
         }
+        return arrPedido;
+    }*/
+
+    public ArrayList<String> pendientes() {
+        ArrayList<String> arrPedido = new ArrayList<>();
+
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            // Ejemplo de recuperación de todos los registros de la tabla Pedido
+            Query<Pedido> query = session.createQuery("FROM Pedido", Pedido.class);
+            List<Pedido> pedidos = query.list();
+
+            // Procesa los registros recuperados
+            for (Pedido pedido : pedidos) {
+                if (!pedido.pedidoEnviado()) {
+                    int idPedido = pedido.getId();
+                    int numPedido = pedido.getNumPedido();
+                    int cantidad = pedido.getCantidad();
+                    LocalDateTime fecha = pedido.getFecha();
+                    int idCliente = pedido.getCliente().getId();
+                    int idArticulo = Integer.parseInt(pedido.getArticulo().getIdArticulo());
+
+                    arrPedido.add("ID: " + idPedido + " Número de pedido: " + numPedido + " Cantidad: " + cantidad +
+                            " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
+                }
+            }
+
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return arrPedido;
     }
 

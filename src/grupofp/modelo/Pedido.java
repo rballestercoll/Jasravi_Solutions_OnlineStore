@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "pedido")
 public class Pedido {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idPedido")
@@ -24,6 +25,11 @@ public class Pedido {
     @ManyToOne
     @JoinColumn(name = "idArticulo")
     private Articulo articulo;
+
+    // Constructor sin argumentos requerido por Hibernate
+    public Pedido() {
+        // Constructor vacío
+    }
 
     public Pedido (int numPedido, int cantidad, LocalDateTime fecha, Cliente cliente, Articulo articulo){
         this.numPedido = numPedido;
@@ -44,6 +50,15 @@ public class Pedido {
         this.cantidad = cantidad;
         this.fecha = fecha;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public int getNumPedido() {
         return numPedido;
     }
@@ -118,4 +133,6 @@ public class Pedido {
                 ", estado del pedido=" + comprobar() +
                 '}';
     }
+
+
 }

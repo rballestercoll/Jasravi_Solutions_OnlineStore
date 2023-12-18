@@ -1,11 +1,23 @@
 package grupofp.modelo;
 
-public abstract class Cliente {
-    private String nombre;
-    private String domicilio;
-    private String nif;
-    private String email;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "cliente")
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class Cliente {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idCliente")
+    private int id;
+    @Column(name = "nombre")
+    private String nombre;
+    @Column(name = "domicilio")
+    private String domicilio;
+    @Column(name = "nif")
+    private String nif;
+    @Column(name = "email")
+    private String email;
 
     public Cliente(String nombre, String domicilio, String nif, String email) {
         this.nombre = nombre;
@@ -14,6 +26,12 @@ public abstract class Cliente {
         this.email = email;
     }
 
+    public Cliente() {
+
+    }
+
+    public int getId() {return id;}
+    public void setId(int id) {this.id = id;}
     public String getNombre() {
         return nombre;
     }

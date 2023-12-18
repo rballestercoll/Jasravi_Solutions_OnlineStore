@@ -1,11 +1,21 @@
 package grupofp.modelo;
 
 import grupofp.controlador.Controlador;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.procedure.ProcedureCall;
+import org.hibernate.procedure.ProcedureOutputs;
+import org.hibernate.query.Query;
+import org.hibernate.result.ResultSetOutput;
+
 
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 /*
 La clase Datos es la clase principal del paquete del modelo, puesto que
@@ -20,6 +30,8 @@ public class Datos {
     // Variable de MySQLConnector class para conectar a la BBDD
     private Connection dbConnection;
 
+    private SessionFactory sessionFactory;
+
 
     public Datos() {
 
@@ -28,6 +40,8 @@ public class Datos {
         MySQLConnector connector = new MySQLConnector();
         dbConnection = connector.getConnection();
 
+        Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+        sessionFactory = configuration.buildSessionFactory();
 
         listaArticulos = new ListaArticulos();
         listaClientes = new ListaClientes();
@@ -75,7 +89,7 @@ public class Datos {
 //    }
 
 public void aniadirArticulo(String id, String descripcion, float precio, float gastosEnvio, int tiempoPreparacion) {
-    String insertQuery = "INSERT INTO articulo (idArticulo, descripcion, precio, gastosEnvio, tiempoPreparacion) VALUES (?, ?, ?, ?, ?)";
+    /*String insertQuery = "INSERT INTO articulo (idArticulo, descripcion, precio, gastosEnvio, tiempoPreparacion) VALUES (?, ?, ?, ?, ?)";
 
     try (PreparedStatement preparedStatement = dbConnection.prepareStatement(insertQuery)) {
         preparedStatement.setString(1, id);
@@ -90,11 +104,26 @@ public void aniadirArticulo(String id, String descripcion, float precio, float g
         }
     } catch (SQLException e) {
         System.err.println("Error al agregar artículo a la base de datos: " + e.getMessage());
+    }*/
+    Articulo nuevoArticulo = new Articulo(id, descripcion, precio, gastosEnvio, tiempoPreparacion);
+
+    // Abre la sesión de Hibernate
+    try (Session session = sessionFactory.openSession()) {
+        // Inicia la transacción
+        Transaction transaction = session.beginTransaction();
+
+        // Guarda el nuevo Articulo en la base de datos
+        session.save(nuevoArticulo);
+
+        // Confirma la transacción
+        transaction.commit();
+    } catch (Exception e) {
+        e.printStackTrace();
     }
 }
 public ArrayList<String> recorrerTodosArticulos() {
     ArrayList<String> arrArticulos = new ArrayList<>();
-    String selectQuery = "SELECT * FROM articulo";
+    /*String selectQuery = "SELECT * FROM articulo";
 
     try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -117,7 +146,40 @@ public ArrayList<String> recorrerTodosArticulos() {
         }
     } catch (SQLException e) {
         System.err.println("Error al recuperar los artículos de la base de datos: " + e.getMessage());
+    }*/
+
+    try (Session session = sessionFactory.openSession()) {
+        // Comienza la transacción
+        Transaction transaction = session.beginTransaction();
+
+        // Ejemplo de recuperación de todos los registros de la tabla Articulo
+        Query<Articulo> query = session.createQuery("FROM Articulo", Articulo.class);
+        List<Articulo> articulos = query.list();
+
+        // Procesa los registros recuperados
+        for (Articulo articulo : articulos) {
+            String idArticulo = articulo.getIdArticulo();
+            String descripcion = articulo.getDescripcion();
+            float precio = articulo.getPrecio();
+            float gastosEnvio = articulo.getGastosEnvio();
+            int tiempoPreparacion = articulo.getTiempoPreparacion();
+
+            String articuloInfo = "Articulo{" +
+                    "idArticulo='" + idArticulo + '\'' +
+                    ", descripcion='" + descripcion + '\'' +
+                    ", precio=" + precio +
+                    ", gastosEnvio=" + gastosEnvio +
+                    ", tiempoPreparacion=" + tiempoPreparacion +
+                    '}';
+            arrArticulos.add(articuloInfo);
+        }
+
+        // Finaliza la transacción
+        transaction.commit();
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+
 
     return arrArticulos;
 }
@@ -140,16 +202,17 @@ public ArrayList<String> recorrerTodosArticulos() {
 //        return arrClientes;
 //    }
 public void aniadirCliente(String nombre, String domicilio, String nif, String email, Float descuento) {
-    try {
+    /*try {
         // validarNIF(nif);
 
-        String insertQuery = "INSERT INTO cliente (nombre, domicilio, nif, email) VALUES (?, ?, ?, ?)";
+        String insertQuery = "INSERT INTO cliente (idCliente, nombre, domicilio, nif, email) VALUES (?, ?, ?, ?, ?)";
 
     try (PreparedStatement preparedStatement = dbConnection.prepareStatement(insertQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
-        preparedStatement.setString(1, nombre);
-        preparedStatement.setString(2, domicilio);
-        preparedStatement.setString(3, nif);
-        preparedStatement.setString(4, email);
+        preparedStatement.setInt(1, id);
+        preparedStatement.setString(2, nombre);
+        preparedStatement.setString(3, domicilio);
+        preparedStatement.setString(4, nif);
+        preparedStatement.setString(5, email);
 
         int rowsAffected = preparedStatement.executeUpdate();
         if (rowsAffected > 0) {
@@ -182,16 +245,38 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
     }
     } catch (SQLException e) {
         System.err.println("Error al agregar cliente a la base de datos: " + e.getMessage());
-    }
+    }*/
 //     catch (Controlador.NIFValidationException e) {
 //        throw new RuntimeException(e);
 //    }
+
+    Cliente nuevoCliente = null;
+    if (descuento != null) {
+        nuevoCliente = new ClientePremium(nombre, domicilio, nif, email, descuento);
+    }
+    else {
+        nuevoCliente = new ClienteEstandar(nombre, domicilio, nif, email);
+    }
+
+    // Abre la sesión de Hibernate
+    try (Session session = sessionFactory.openSession()) {
+        // Inicia la transacción
+        Transaction transaction = session.beginTransaction();
+
+        // Guarda el nuevo Cliente en la base de datos
+        session.save(nuevoCliente);
+
+        // Confirma la transacción
+        transaction.commit();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 }
 
 
     public ArrayList<String> recorrerTodosClientes() {
         ArrayList<String> arrClientes = new ArrayList<>();
-        String selectQuery = "SELECT * from cliente";
+        /*String selectQuery = "SELECT * from cliente";
 
         try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -222,10 +307,41 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
                             " Nif: " + nif +
                             " Email: " + email +
                             '}');
-                }*/
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
+        }*/
+
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            Query<Cliente> query = session.createQuery("FROM Cliente", Cliente.class);
+            List<Cliente> clientes = query.list();
+
+            // Procesa los registros recuperados
+            for (Cliente cliente : clientes) {
+                int idCliente = cliente.getId();
+                String nombre = cliente.getNombre();
+                String domicilio = cliente.getDomicilio();
+                String nif = cliente.getNif();
+                String email = cliente.getEmail();
+
+                String clienteInfo = "Cliente{" +
+                        "idCliente='" + idCliente + '\'' +
+                        ", nombre='" + nombre + '\'' +
+                        ", domicilio=" + domicilio +
+                        ", nif=" + nif +
+                        ", email=" + email +
+                        '}';
+                arrClientes.add(clienteInfo);
+            }
+
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return arrClientes;
@@ -238,7 +354,7 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
             }
         }*/
 
-        String sql = "{call obtenerClientesEstandar()}";
+        /*String sql = "{call obtenerClientesEstandar()}";
 
 
         try (CallableStatement callableStatement = dbConnection.prepareCall(sql)) {
@@ -260,6 +376,34 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
+        }*/
+
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            ProcedureCall procedureCall = session.createStoredProcedureCall("obtenerClientesEstandar");
+
+            ProcedureOutputs procedureOutputs = procedureCall.getOutputs();
+            ResultSetOutput resultSetOutput = (ResultSetOutput) procedureOutputs.getCurrent();
+
+            // Procesa los registros recuperados
+            resultSetOutput.getResultList().forEach(row -> {
+                if (row instanceof Object[]) {
+                    Object[] columns = (Object[]) row;
+                    int id = (int)columns[0];
+                    String nombre = (String)columns[1];
+                    String domicilio = (String)columns[2];
+                    String nif = (String)columns[3];
+                    String email = (String)columns[4];
+
+                    arrClienteEstandar.add("ID: " + id + " Nombre: " + nombre + " Domicilio: " + domicilio + " NIF: " + nif + " Email: " + email);
+                }
+            });
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
 
@@ -275,7 +419,7 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
 
         }*/
 
-        String sql = "{call obtenerClientesPremium()}";
+        /*String sql = "{call obtenerClientesPremium()}";
 
 
         try (CallableStatement callableStatement = dbConnection.prepareCall(sql)) {
@@ -298,8 +442,35 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
-        }
+        }*/
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
 
+            ProcedureCall procedureCall = session.createStoredProcedureCall("obtenerClientesPremium");
+
+            ProcedureOutputs procedureOutputs = procedureCall.getOutputs();
+            ResultSetOutput resultSetOutput = (ResultSetOutput) procedureOutputs.getCurrent();
+
+            // Procesa los registros recuperados
+            resultSetOutput.getResultList().forEach(row -> {
+                if (row instanceof Object[]) {
+                    Object[] columns = (Object[]) row;
+                    int id = (int)columns[0];
+                    String nombre = (String)columns[1];
+                    String domicilio = (String)columns[2];
+                    String nif = (String)columns[3];
+                    String email = (String)columns[4];
+                    float descuento = (float)columns[6];
+
+                    arrClientePremium.add("ID: " + id + " Nombre: " + nombre + " Domicilio: " + domicilio + " NIF: " + nif + " Email: " + email + " Descuento: " + descuento);
+                }
+            });
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return arrClientePremium;
     }
@@ -319,6 +490,8 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
 //        }
 //        return false;
 //    }
+
+/*    17/12 - 17:07
 
     public boolean aniadirPedido(int numPedido, int cantidad, LocalDateTime fecha, String email, String id) {
         String selectClienteQuery = "SELECT idCliente FROM cliente WHERE email = ?";
@@ -371,7 +544,81 @@ public void aniadirCliente(String nombre, String domicilio, String nif, String e
         }
 
         return false;
+    }*/
+
+    public boolean aniadirPedido(int numPedido, int cantidad, LocalDateTime fecha, String email, String id) {
+        Cliente cliente = obtenerClientePorEmail(email);
+        Articulo articulo = obtenerArticuloPorId(id);
+
+        if (cliente != null && articulo != null) {
+            Pedido nuevoPedido = new Pedido(numPedido, cantidad, fecha, cliente, articulo);
+
+            // Abre la sesión de Hibernate
+            try (Session session = sessionFactory.openSession()) {
+                // Inicia la transacción
+                Transaction transaction = session.beginTransaction();
+
+                // Guarda el nuevo Pedido en la base de datos
+                session.save(nuevoPedido);
+
+                // Confirma la transacción
+                transaction.commit();
+                System.out.println("Pedido agregado con éxito a la base de datos.");
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("Error al agregar pedido a la base de datos: " + e.getMessage());
+            }
+        } else {
+            System.err.println("No se pudo agregar el pedido porque el cliente o el artículo no fueron encontrados.");
+        }
+
+        return false;
     }
+
+    private Cliente obtenerClientePorEmail(String email) {
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            Query<Cliente> query = session.createQuery("FROM Cliente WHERE email = :email", Cliente.class);
+            query.setParameter("email", email);
+            Cliente cliente = query.uniqueResult();
+
+            // Finaliza la transacción
+            transaction.commit();
+
+            return cliente;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error al obtener cliente por email: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+
+    private Articulo obtenerArticuloPorId(String id) {
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            Query<Articulo> query = session.createQuery("FROM Articulo WHERE idArticulo = :id", Articulo.class);
+            query.setParameter("id", id);
+            Articulo articulo = query.uniqueResult();
+
+            // Finaliza la transacción
+            transaction.commit();
+
+            return articulo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error al obtener artículo por ID: " + e.getMessage());
+        }
+
+        return null;
+    }
+
 
 
     public Articulo dameArticulo(String id){
@@ -502,7 +749,7 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
 }
 
     public void borrarPedido(int numPedido) {
-        String deletePedidoQuery = "DELETE FROM pedido WHERE numPedido = ?";
+        /*String deletePedidoQuery = "DELETE FROM pedido WHERE numPedido = ?";
 
         try (PreparedStatement preparedStatement = dbConnection.prepareStatement(deletePedidoQuery)) {
             preparedStatement.setInt(1, numPedido);
@@ -515,10 +762,31 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
             }
         } catch (SQLException e) {
             System.err.println("Error al eliminar el pedido de la base de datos: " + e.getMessage());
+        }*/
+        try (Session session = sessionFactory.openSession()) {
+            // Inicia una transacción
+            session.beginTransaction();
+
+            String hql = "FROM Pedido p WHERE p.numPedido = :numPedido";
+            Query<Pedido> query = session.createQuery(hql, Pedido.class);
+            query.setParameter("numPedido", numPedido);
+            Pedido pedidoAEliminar = query.uniqueResult();
+
+            // Borra el objeto de la base de datos
+            if (pedidoAEliminar != null) {
+                session.delete(pedidoAEliminar);
+                System.out.println("Pedido eliminado exitosamente.");
+            } else {
+                System.out.println("Pedido no encontrado. No se realizó ninguna operación de eliminación.");
+            }
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
 
+/*  17/12 - 17:07
     public ArrayList<String> pendientes(){
         ArrayList<String> arrPedido = new ArrayList<>();
 
@@ -546,6 +814,43 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
         }
         return arrPedido;
+    }*/
+
+    public ArrayList<String> pendientes() {
+        ArrayList<String> arrPedido = new ArrayList<>();
+
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            // Ejemplo de recuperación de todos los registros de la tabla Pedido
+            Query<Pedido> query = session.createQuery("FROM Pedido", Pedido.class);
+            List<Pedido> pedidos = query.list();
+
+            // Procesa los registros recuperados
+            for (Pedido pedido : pedidos) {
+                int idPedido = pedido.getId();
+                int numPedido = pedido.getNumPedido();
+                int cantidad = pedido.getCantidad();
+                LocalDateTime fecha = pedido.getFecha();
+                int idCliente = pedido.getCliente().getId();
+                int idArticulo = Integer.parseInt(pedido.getArticulo().getIdArticulo());
+
+                LocalDate hoy = LocalDate.now();
+                LocalDate ayer = hoy.minusDays(1);
+
+                if (fecha.isEqual(hoy.atStartOfDay()) || fecha.isEqual(ayer.atStartOfDay())) {
+                    arrPedido.add("ID: " + idPedido + " Número de pedido: " + numPedido + " Cantidad: " + cantidad + " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
+                }
+            }
+
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return arrPedido;
     }
 
     public ArrayList<String> filtroPendiente(String email){
@@ -571,7 +876,7 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
     public ArrayList<String> enviados() {
         ArrayList<String> arrPedido = new ArrayList<>();
 
-        String selectQuery = "SELECT * from pedido";
+        /*String selectQuery = "SELECT * from pedido";
 
         try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -590,7 +895,35 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
+        }*/
+
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            // Ejemplo de recuperación de todos los registros de la tabla Pedido
+            Query<Pedido> query = session.createQuery("FROM Pedido", Pedido.class);
+            List<Pedido> pedidos = query.list();
+
+            // Procesa los registros recuperados
+            for (Pedido pedido : pedidos) {
+                int idPedido = pedido.getId();
+                int numPedido = pedido.getNumPedido();
+                int cantidad = pedido.getCantidad();
+                LocalDateTime fecha = pedido.getFecha();
+                int idCliente = pedido.getCliente().getId();
+                int idArticulo = Integer.parseInt(pedido.getArticulo().getIdArticulo());
+
+                if (fecha.isBefore(LocalDate.now().minusDays(1).atStartOfDay())) {
+                    arrPedido.add("ID: " + idPedido + " Número de pedido: " + numPedido + " Cantidad: " + cantidad + " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
+                }
+            }
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         return arrPedido;
     }
     public ArrayList<String> filtroEnviado(String email){

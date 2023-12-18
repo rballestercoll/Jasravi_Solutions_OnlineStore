@@ -749,7 +749,7 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
 }
 
     public void borrarPedido(int numPedido) {
-        String deletePedidoQuery = "DELETE FROM pedido WHERE numPedido = ?";
+        /*String deletePedidoQuery = "DELETE FROM pedido WHERE numPedido = ?";
 
         try (PreparedStatement preparedStatement = dbConnection.prepareStatement(deletePedidoQuery)) {
             preparedStatement.setInt(1, numPedido);
@@ -762,6 +762,26 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
             }
         } catch (SQLException e) {
             System.err.println("Error al eliminar el pedido de la base de datos: " + e.getMessage());
+        }*/
+        try (Session session = sessionFactory.openSession()) {
+            // Inicia una transacción
+            session.beginTransaction();
+
+            String hql = "FROM Pedido p WHERE p.numPedido = :numPedido";
+            Query<Pedido> query = session.createQuery(hql, Pedido.class);
+            query.setParameter("numPedido", numPedido);
+            Pedido pedidoAEliminar = query.uniqueResult();
+
+            // Borra el objeto de la base de datos
+            if (pedidoAEliminar != null) {
+                session.delete(pedidoAEliminar);
+                System.out.println("Pedido eliminado exitosamente.");
+            } else {
+                System.out.println("Pedido no encontrado. No se realizó ninguna operación de eliminación.");
+            }
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -809,16 +829,18 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
 
             // Procesa los registros recuperados
             for (Pedido pedido : pedidos) {
-                if (!pedido.pedidoEnviado()) {
-                    int idPedido = pedido.getId();
-                    int numPedido = pedido.getNumPedido();
-                    int cantidad = pedido.getCantidad();
-                    LocalDateTime fecha = pedido.getFecha();
-                    int idCliente = pedido.getCliente().getId();
-                    int idArticulo = Integer.parseInt(pedido.getArticulo().getIdArticulo());
+                int idPedido = pedido.getId();
+                int numPedido = pedido.getNumPedido();
+                int cantidad = pedido.getCantidad();
+                LocalDateTime fecha = pedido.getFecha();
+                int idCliente = pedido.getCliente().getId();
+                int idArticulo = Integer.parseInt(pedido.getArticulo().getIdArticulo());
 
-                    arrPedido.add("ID: " + idPedido + " Número de pedido: " + numPedido + " Cantidad: " + cantidad +
-                            " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
+                LocalDate hoy = LocalDate.now();
+                LocalDate ayer = hoy.minusDays(1);
+
+                if (fecha.isEqual(hoy.atStartOfDay()) || fecha.isEqual(ayer.atStartOfDay())) {
+                    arrPedido.add("ID: " + idPedido + " Número de pedido: " + numPedido + " Cantidad: " + cantidad + " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
                 }
             }
 
@@ -854,7 +876,7 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
     public ArrayList<String> enviados() {
         ArrayList<String> arrPedido = new ArrayList<>();
 
-        String selectQuery = "SELECT * from pedido";
+        /*String selectQuery = "SELECT * from pedido";
 
         try (PreparedStatement preparedStatement = dbConnection.prepareStatement(selectQuery)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -873,7 +895,35 @@ public void aniadirClientePedido(int numPedido, int cantidad, LocalDateTime fech
             }
         } catch (SQLException e) {
             System.err.println("Error al recuperar los clientes de la base de datos: " + e.getMessage());
+        }*/
+
+        try (Session session = sessionFactory.openSession()) {
+            // Comienza la transacción
+            Transaction transaction = session.beginTransaction();
+
+            // Ejemplo de recuperación de todos los registros de la tabla Pedido
+            Query<Pedido> query = session.createQuery("FROM Pedido", Pedido.class);
+            List<Pedido> pedidos = query.list();
+
+            // Procesa los registros recuperados
+            for (Pedido pedido : pedidos) {
+                int idPedido = pedido.getId();
+                int numPedido = pedido.getNumPedido();
+                int cantidad = pedido.getCantidad();
+                LocalDateTime fecha = pedido.getFecha();
+                int idCliente = pedido.getCliente().getId();
+                int idArticulo = Integer.parseInt(pedido.getArticulo().getIdArticulo());
+
+                if (fecha.isBefore(LocalDate.now().minusDays(1).atStartOfDay())) {
+                    arrPedido.add("ID: " + idPedido + " Número de pedido: " + numPedido + " Cantidad: " + cantidad + " Fecha: " + fecha + " IDCliente: " + idCliente + " IDArticulo " + idArticulo);
+                }
+            }
+            // Finaliza la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         return arrPedido;
     }
     public ArrayList<String> filtroEnviado(String email){

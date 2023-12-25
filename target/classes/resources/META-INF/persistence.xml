@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
+    <persistence-unit name="onlinestore">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>grupofp.modelo.Articulo</class>
+        <class>grupofp.modelo.Cliente</class>
+        <class>grupofp.modelo.ClienteEstandar</class>
+        <class>grupofp.modelo.ClientePremium</class>
+        <class>grupofp.modelo.Pedido</class>
+        <class>grupofp.modelo.Datos</class>
+        <!-- Agrega más clases de entidad según sea necesario -->
+
+        <properties>
+            <!-- Configuración de la conexión a la base de datos -->
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/onlinestore"/>
+            <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.password" value="1234"/>
+
+            <!-- Configuración del dialecto de la base de datos -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+
+            <!-- Configuración del proveedor de conexión -->
+            <property name="hibernate.connection.provider_class" value="org.hibernate.c3p0.internal.C3P0ConnectionProvider"/>
+
+            <!-- Configuración de propiedades para logging -->
+            <!-- Descomenta estas líneas si deseas activar el logging -->
+            <!-- <property name="hibernate.show_sql" value="true"/> -->
+            <!-- <property name="hibernate.format_sql" value="true"/> -->
+            <!-- <property name="hibernate.use_sql_comments" value="true"/> -->
+        </properties>
+    </persistence-unit>
+</persistence>

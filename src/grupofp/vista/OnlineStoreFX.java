@@ -289,8 +289,8 @@ public class OnlineStoreFX extends Application {
         Button volverBtn = new Button("Volver al Menú Principal");
 
         // EventHandlers para cada botón
-        addArticuloBtn.setOnAction(e -> gestion.addArticulo());
-        mostrarArticulosBtn.setOnAction(e -> gestion.mostrarArticulos());
+        addArticuloBtn.setOnAction(e -> addArticulo());
+        mostrarArticulosBtn.setOnAction(e -> mostrarArticulos());
         volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
 
         // Añadir botones al grid
@@ -301,6 +301,12 @@ public class OnlineStoreFX extends Application {
         Scene scene = new Scene(grid, 400, 200);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void mostrarArticulos() {
+    }
+
+    private void addArticulo() {
     }
 
     private void gestionPedidos(Stage primaryStage) {

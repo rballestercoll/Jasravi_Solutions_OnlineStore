@@ -1,5 +1,6 @@
 package grupofp.vista;
 
+import grupofp.controlador.Controlador;
 import grupofp.modelo.Cliente;
 import grupofp.modelo.ClienteEstandar;
 import grupofp.modelo.ClientePremium;
@@ -7,30 +8,31 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.io.InputStream;
 
 public class OnlineStoreFX extends Application {
     private GestionOs gestion = new GestionOs();
+    private Controlador controlador;
     Scanner teclado = new Scanner(System.in);
     private Stage primaryStage;
     private Scene mainMenuScene;
     private Scene clientesScene;
 
+    public OnlineStoreFX() {
+        controlador = new Controlador();
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -86,9 +88,9 @@ public class OnlineStoreFX extends Application {
 
         // EventHandlers para cada botón
         addClienteBtn.setOnAction(e -> mostrarVentanaAddCliente());
-        mostrarClientesBtn.setOnAction(e -> gestion.mostrarClientes());
-        mostrarClientesEstandarBtn.setOnAction(e -> gestion.mostrarClientesEstandar());
-        mostrarClientesPremiumBtn.setOnAction(e -> gestion.mostrarClientesPremium());
+        mostrarClientesBtn.setOnAction(e -> mostrarClientes());
+        mostrarClientesEstandarBtn.setOnAction(e -> mostrarClientesEstandar());
+        mostrarClientesPremiumBtn.setOnAction(e -> mostrarClientesPremium());
         volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
 
         // Añadir botones al grid
@@ -102,6 +104,7 @@ public class OnlineStoreFX extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
 
     private void mostrarVentanaAddCliente() {
         Stage ventanaAddCliente = new Stage();
@@ -209,6 +212,69 @@ public class OnlineStoreFX extends Application {
         System.out.println("Se ha añadido nuevo cliente " + tipoCliente);
     }
 
+    private void mostrarClientes() {
+        ArrayList<String> cliT = controlador.recogerTodosClientes();
+        TableView<String> tableView = new TableView<>();
+        ObservableList<String> data = FXCollections.observableArrayList(cliT);
+
+        TableColumn<String, String> clienteColumn = new TableColumn<>("Clientes");
+        clienteColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()));
+
+        tableView.getColumns().addAll(clienteColumn);
+        tableView.setItems(data);
+
+        Button volverBtn = new Button("Volver al Menú Principal");
+        volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
+
+        VBox vbox = new VBox();
+        vbox.getChildren().addAll(tableView, volverBtn);
+
+        Scene scene = new Scene(vbox, 600, 400);
+        primaryStage.setScene(scene);
+    }
+
+    private void mostrarClientesEstandar() {
+
+        ArrayList<String> cliE = controlador.recogerClienteEstandar();
+        TableView<String> tableView = new TableView<>();
+        ObservableList<String> data = FXCollections.observableArrayList(cliE);
+
+        TableColumn<String, String> clienteColumn = new TableColumn<>("Clientes Estándar");
+        clienteColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()));
+
+        tableView.getColumns().addAll(clienteColumn);
+        tableView.setItems(data);
+
+        Button volverBtn = new Button("Volver al Menú Principal");
+        volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
+
+        VBox vbox = new VBox();
+        vbox.getChildren().addAll(tableView, volverBtn);
+
+        Scene scene = new Scene(vbox, 600, 400);
+        primaryStage.setScene(scene);
+    }
+
+    private void mostrarClientesPremium() {
+        ArrayList<String> cliP = controlador.recogerClientePremium();
+        TableView<String> tableView = new TableView<>();
+        ObservableList<String> data = FXCollections.observableArrayList(cliP);
+
+        TableColumn<String, String> clienteColumn = new TableColumn<>("Clientes Premium");
+        clienteColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()));
+
+        tableView.getColumns().addAll(clienteColumn);
+        tableView.setItems(data);
+
+        Button volverBtn = new Button("Volver al Menú Principal");
+        volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
+
+        VBox vbox = new VBox();
+        vbox.getChildren().addAll(tableView, volverBtn);
+
+        Scene scene = new Scene(vbox, 600, 400);
+        primaryStage.setScene(scene);
+    }
 
 
     private void gestionArticulos(Stage primaryStage) {

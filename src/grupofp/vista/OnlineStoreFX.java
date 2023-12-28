@@ -17,8 +17,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.io.InputStream;
 
@@ -29,6 +32,7 @@ public class OnlineStoreFX extends Application {
     private Stage primaryStage;
     private Scene mainMenuScene;
     private Scene clientesScene;
+    private ObservableList<String> pedidosEnviados = FXCollections.observableArrayList();
 
     public OnlineStoreFX() {
         controlador = new Controlador();
@@ -304,9 +308,108 @@ public class OnlineStoreFX extends Application {
     }
 
     private void mostrarArticulos() {
+        ArrayList<String> aArt = controlador.recogerTodosArticulos();
+
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        // Añadir encabezados
+        gridPane.add(new Label("ID"), 0, 0);
+        gridPane.add(new Label("Descripción"), 1, 0);
+        gridPane.add(new Label("Precio"), 2, 0);
+        gridPane.add(new Label("Gastos de envío"), 3, 0);
+        gridPane.add(new Label("Tiempo de preparación"), 4, 0);
+
+        int row = 1; // Comenzar desde la fila 1 para los datos
+
+        for (String articulo : aArt) {
+            // Separar los datos del artículo
+            String[] datos = articulo.split(",");
+
+            // Crear etiquetas para cada dato
+            Label idLabel = new Label(datos[0]);
+            Label descripcionLabel = new Label(datos[1]);
+            Label precioLabel = new Label(datos[2]);
+            Label gastosEnvioLabel = new Label(datos[3]);
+            Label tiempoPreparacionLabel = new Label(datos[4]);
+
+            // Añadir etiquetas al GridPane
+            gridPane.add(idLabel, 0, row);
+            gridPane.add(descripcionLabel, 1, row);
+            gridPane.add(precioLabel, 2, row);
+            gridPane.add(gastosEnvioLabel, 3, row);
+            gridPane.add(tiempoPreparacionLabel, 4, row);
+
+            row++; // Moverse a la siguiente fila
+        }
+
+        // Crear una escena y mostrarla en una ventana (Stage)
+        Scene scene = new Scene(gridPane, 600, 400);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.setTitle("Lista de Artículos");
+        stage.show();
     }
 
     private void addArticulo() {
+        Stage stage = new Stage();
+        stage.setTitle("Añadir Artículo");
+
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        Label idLabel = new Label("Id de Artículo:");
+        TextField idTextField = new TextField();
+
+        Label descripcionLabel = new Label("Descripción:");
+        TextField descripcionTextField = new TextField();
+
+        Label precioLabel = new Label("Precio:");
+        TextField precioTextField = new TextField();
+
+        Label gastosEnvioLabel = new Label("Gastos de Envío:");
+        TextField gastosEnvioTextField = new TextField();
+
+        Label tiempoPreparacionLabel = new Label("Tiempo de Preparación:");
+        TextField tiempoPreparacionTextField = new TextField();
+
+        Button confirmarBtn = new Button("Confirmar");
+        confirmarBtn.setOnAction(e -> {
+            // Obtener los valores de los campos de texto
+            String id = idTextField.getText();
+            String descripcion = descripcionTextField.getText();
+            float precio = Float.parseFloat(precioTextField.getText());
+            float gastosEnvio = Float.parseFloat(gastosEnvioTextField.getText());
+            int tiempoPreparacion = Integer.parseInt(tiempoPreparacionTextField.getText());
+
+            // Llamar al método para agregar el artículo
+            controlador.entradaArticulo(id, descripcion, precio, gastosEnvio, tiempoPreparacion);
+
+            System.out.println("Se ha añadido el nuevo Artículo");
+            stage.close(); // Cerrar la ventana después de añadir el artículo
+        });
+
+        // Añadir nodos al GridPane
+        gridPane.add(idLabel, 0, 0);
+        gridPane.add(idTextField, 1, 0);
+        gridPane.add(descripcionLabel, 0, 1);
+        gridPane.add(descripcionTextField, 1, 1);
+        gridPane.add(precioLabel, 0, 2);
+        gridPane.add(precioTextField, 1, 2);
+        gridPane.add(gastosEnvioLabel, 0, 3);
+        gridPane.add(gastosEnvioTextField, 1, 3);
+        gridPane.add(tiempoPreparacionLabel, 0, 4);
+        gridPane.add(tiempoPreparacionTextField, 1, 4);
+        gridPane.add(confirmarBtn, 0, 5, 2, 1);
+
+        // Crear una escena y mostrarla en la ventana
+        Scene scene = new Scene(gridPane, 300, 250);
+        stage.setScene(scene);
+        stage.show();
     }
 
     private void gestionPedidos(Stage primaryStage) {
@@ -323,10 +426,10 @@ public class OnlineStoreFX extends Application {
         Button volverBtn = new Button("Volver al Menú Principal");
 
         // EventHandlers para cada botón
-        addPedidoBtn.setOnAction(e -> gestion.addPedido());
-        eliminarPedidoBtn.setOnAction(e -> gestion.eliminarPedido());
-        mostrarPendientesBtn.setOnAction(e -> gestion.mostrarPedidosPendientes());
-        mostrarEnviadosBtn.setOnAction(e -> gestion.mostrarPedidosEnviados());
+        addPedidoBtn.setOnAction(e -> addPedido());
+        eliminarPedidoBtn.setOnAction(e -> eliminarPedido());
+        mostrarPendientesBtn.setOnAction(e -> mostrarPedidosPendientes());
+        mostrarEnviadosBtn.setOnAction(e -> mostrarPedidosEnviados());
         volverBtn.setOnAction(e -> primaryStage.setScene(mainMenuScene));
 
         // Añadir botones al grid
@@ -339,6 +442,263 @@ public class OnlineStoreFX extends Application {
         Scene scene = new Scene(grid, 400, 200);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void addPedido() {
+        Stage stage = new Stage();
+        stage.setTitle("Añadir Pedido");
+        stage.initModality(Modality.APPLICATION_MODAL);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        Label numPedidoLabel = new Label("Número de Pedido:");
+        TextField numPedidoTextField = new TextField();
+
+        Label cantidadLabel = new Label("Cantidad:");
+        TextField cantidadTextField = new TextField();
+
+        Label fechaLabel = new Label("Fecha y Hora del Pedido (dd/MM/yyyy/HH/mm):");
+        TextField fechaTextField = new TextField();
+
+        Label emailLabel = new Label("Email del Cliente:");
+        TextField emailTextField = new TextField();
+
+        Label idArticuloLabel = new Label("Id de Artículo:");
+        TextField idArticuloTextField = new TextField();
+
+        Button confirmarBtn = new Button("Confirmar");
+        confirmarBtn.setOnAction(e -> {
+            // Obtener los valores de los campos de texto
+            int numPedido = Integer.parseInt(numPedidoTextField.getText());
+            int cantidad = Integer.parseInt(cantidadTextField.getText());
+            LocalDateTime fecha = LocalDateTime.parse(fechaTextField.getText(), DateTimeFormatter.ofPattern("dd/MM/yyyy/HH/mm"));
+            String email = emailTextField.getText();
+            String idArticulo = idArticuloTextField.getText();
+
+            // Verificar si el cliente existe, si no, abrir la ventana para añadir cliente
+            if (!controlador.existeC(email)) {
+                mostrarVentanaAddCliente();
+            }
+
+            // Llamar al método para agregar el pedido
+            controlador.entradaPedido(numPedido, cantidad, fecha, email, idArticulo);
+
+            System.out.println("Se ha añadido el nuevo Pedido");
+            stage.close(); // Cerrar la ventana después de añadir el pedido
+        });
+
+        // Añadir nodos al GridPane
+        gridPane.add(numPedidoLabel, 0, 0);
+        gridPane.add(numPedidoTextField, 1, 0);
+        gridPane.add(cantidadLabel, 0, 1);
+        gridPane.add(cantidadTextField, 1, 1);
+        gridPane.add(fechaLabel, 0, 2);
+        gridPane.add(fechaTextField, 1, 2);
+        gridPane.add(emailLabel, 0, 3);
+        gridPane.add(emailTextField, 1, 3);
+        gridPane.add(idArticuloLabel, 0, 4);
+        gridPane.add(idArticuloTextField, 1, 4);
+        gridPane.add(confirmarBtn, 0, 5, 2, 1);
+
+        // Crear una escena y mostrarla en la ventana
+        Scene scene = new Scene(gridPane, 500, 300);
+        stage.setScene(scene);
+        stage.showAndWait(); // Mostrar la ventana y esperar hasta que se cierre
+    }
+
+    private void mostrarPedidosEnviados() {
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+
+        // Botones para cada opción del menú
+        Button mostrarTodosBtn = new Button("Mostrar todos los Pedidos Enviados");
+        Button filtrarClienteBtn = new Button("Filtrar por Cliente");
+        Button volverBtn = new Button("Volver al Menú Principal");
+
+        // EventHandlers para cada botón
+        mostrarTodosBtn.setOnAction(e -> mostrarTodosEnviados());
+        filtrarClienteBtn.setOnAction(e -> filtrarClienteEnv());
+        volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
+
+        // Añadir botones al grid
+        grid.add(mostrarTodosBtn, 0, 0);
+        grid.add(filtrarClienteBtn, 0, 1);
+        grid.add(volverBtn, 0, 2);
+
+        Scene scene = new Scene(grid, 400, 200);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void mostrarTodosEnviados() {
+        // Llenar pedidosEnviados con datos de controlador.todosEnviados()
+        pedidosEnviados.clear();
+        pedidosEnviados.addAll(controlador.todosEnviados());
+
+        // Crear un GridPane para mostrar los pedidos enviados
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        // Agregar una etiqueta para mostrar los pedidos enviados
+        Label pedidosLabel = new Label("Pedidos Enviados:");
+        gridPane.add(pedidosLabel, 0, 0);
+
+        // Agregar pedidos al GridPane
+        for (int i = 0; i < pedidosEnviados.size(); i++) {
+            Label pedido = new Label(pedidosEnviados.get(i));
+            gridPane.add(pedido, 0, i + 1);
+        }
+
+        // Botón para volver al menú principal
+        Button volverBtn = new Button("Volver al Menú Principal");
+        volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
+        gridPane.add(volverBtn, 0, pedidosEnviados.size() + 1);
+
+        // Crear una escena y mostrarla en una nueva ventana
+        Scene pedidosScene = new Scene(gridPane, 400, 300);
+        Stage pedidosStage = new Stage();
+        pedidosStage.setScene(pedidosScene);
+        pedidosStage.show();
+    }
+
+    private void filtrarClienteEnv() {
+        Stage stage = new Stage();
+        stage.setTitle("Filtrar por Cliente Enviado");
+        stage.initModality(Modality.APPLICATION_MODAL);
+
+        // Crear un GridPane para la ventana de filtrado
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        // Agregar una etiqueta y un TextField para ingresar el correo del cliente
+        Label emailLabel = new Label("Introduce email del cliente:");
+        TextField emailTextField = new TextField();
+        gridPane.add(emailLabel, 0, 0);
+        gridPane.add(emailTextField, 1, 0);
+
+        // Botón para confirmar el filtrado
+        Button confirmarBtn = new Button("Confirmar");
+        confirmarBtn.setOnAction(e -> {
+            // Obtener el correo del TextField
+            String email = emailTextField.getText();
+
+            // Realizar el filtrado por cliente y mostrar los resultados en un GridView
+            mostrarResultadosFiltradoCliente(controlador.filtrarClienteEnviado(email));
+
+            stage.close(); // Cerrar la ventana después de filtrar
+        });
+        gridPane.add(confirmarBtn, 0, 1, 2, 1);
+
+        // Crear una escena y mostrarla en la ventana de filtrado
+        Scene scene = new Scene(gridPane, 300, 150);
+        stage.setScene(scene);
+        stage.showAndWait(); // Mostrar la ventana y esperar hasta que se cierre
+    }
+
+    private void mostrarResultadosFiltradoCliente(ArrayList<String> resultados) {
+        // Crear un GridPane para mostrar los resultados del filtrado
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        // Agregar una etiqueta para mostrar los resultados
+        Label resultadosLabel = new Label("Resultados del Filtrado por Cliente:");
+        gridPane.add(resultadosLabel, 0, 0);
+
+        // Agregar resultados al GridPane
+        for (int i = 0; i < resultados.size(); i++) {
+            Label resultado = new Label(resultados.get(i));
+            gridPane.add(resultado, 0, i + 1);
+        }
+
+        // Mostrar la ventana de resultados
+        Stage resultadosStage = new Stage();
+        resultadosStage.setTitle("Resultados del Filtrado por Cliente");
+        resultadosStage.setScene(new Scene(gridPane, 400, 300));
+        resultadosStage.show();
+    }
+
+
+    private void mostrarPedidosPendientes() {
+        // Obtener la lista de todos los pedidos pendientes
+        ArrayList<String> aTodosPendientes = controlador.todosPendientes();
+
+        // Crear un GridPane para mostrar los pedidos pendientes
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        // Agregar una etiqueta para mostrar los pedidos pendientes
+        Label pedidosLabel = new Label("Pedidos Pendientes:");
+        gridPane.add(pedidosLabel, 0, 0);
+
+        // Agregar pedidos pendientes al GridPane
+        for (int i = 0; i < aTodosPendientes.size(); i++) {
+            Label pedido = new Label(aTodosPendientes.get(i));
+            gridPane.add(pedido, 0, i + 1);
+        }
+
+        // Botón para volver al menú principal
+        Button volverBtn = new Button("Volver al Menú Principal");
+        volverBtn.setOnAction(e -> primaryStage.setScene(mainMenuScene));
+        gridPane.add(volverBtn, 0, aTodosPendientes.size() + 1);
+
+        // Crear una escena y mostrarla en una nueva ventana
+        Scene pedidosScene = new Scene(gridPane, 400, 300);
+        Stage pedidosStage = new Stage();
+        pedidosStage.setTitle("Pedidos Pendientes");
+        pedidosStage.setScene(pedidosScene);
+        pedidosStage.show();
+    }
+
+
+    private void eliminarPedido() {
+        // Crear una nueva ventana para la eliminación de pedido
+        Stage stage = new Stage();
+        stage.setTitle("Eliminar Pedido");
+        stage.initModality(Modality.APPLICATION_MODAL);
+
+        // Crear un GridPane para la ventana de eliminación
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        // Agregar una etiqueta y un TextField para ingresar el número de pedido a eliminar
+        Label numPedidoLabel = new Label("Número de Pedido:");
+        TextField numPedidoTextField = new TextField();
+        gridPane.add(numPedidoLabel, 0, 0);
+        gridPane.add(numPedidoTextField, 1, 0);
+
+        // Botón para confirmar la eliminación
+        Button confirmarBtn = new Button("Confirmar");
+        confirmarBtn.setOnAction(e -> {
+            // Obtener el número de pedido del TextField
+            int numPedido = Integer.parseInt(numPedidoTextField.getText());
+
+            // Llamar al método para eliminar el pedido
+            controlador.eliminarPedido(numPedido);
+
+            System.out.println("Se ha eliminado el pedido con número: " + numPedido);
+            stage.close(); // Cerrar la ventana después de eliminar el pedido
+        });
+        gridPane.add(confirmarBtn, 0, 1, 2, 1);
+
+        // Crear una escena y mostrarla en la ventana de eliminación
+        Scene scene = new Scene(gridPane, 300, 150);
+        stage.setScene(scene);
+        stage.showAndWait(); // Mostrar la ventana y esperar hasta que se cierre
     }
 
 }

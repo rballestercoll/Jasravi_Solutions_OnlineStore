@@ -95,7 +95,8 @@ public class OnlineStoreFX extends Application {
         mostrarClientesBtn.setOnAction(e -> mostrarClientes());
         mostrarClientesEstandarBtn.setOnAction(e -> mostrarClientesEstandar());
         mostrarClientesPremiumBtn.setOnAction(e -> mostrarClientesPremium());
-        volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
+        volverBtn.setOnAction(e -> start(primaryStage));
+        // volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
 
         // Añadir botones al grid
         grid.add(addClienteBtn, 0, 0);
@@ -295,7 +296,7 @@ public class OnlineStoreFX extends Application {
         // EventHandlers para cada botón
         addArticuloBtn.setOnAction(e -> addArticulo());
         mostrarArticulosBtn.setOnAction(e -> mostrarArticulos());
-        volverBtn.setOnAction(e -> primaryStage.setScene(primaryStage.getScene()));
+        volverBtn.setOnAction(e -> start(primaryStage));
 
         // Añadir botones al grid
         grid.add(addArticuloBtn, 0, 0);
@@ -430,7 +431,7 @@ public class OnlineStoreFX extends Application {
         eliminarPedidoBtn.setOnAction(e -> eliminarPedido());
         mostrarPendientesBtn.setOnAction(e -> mostrarPedidosPendientes());
         mostrarEnviadosBtn.setOnAction(e -> mostrarPedidosEnviados());
-        volverBtn.setOnAction(e -> primaryStage.setScene(mainMenuScene));
+        volverBtn.setOnAction(e -> start(primaryStage));
 
         // Añadir botones al grid
         grid.add(addPedidoBtn, 0, 0);

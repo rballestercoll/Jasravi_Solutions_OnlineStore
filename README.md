@@ -24,22 +24,17 @@ To ensure robust security:
 - **Transactions and Stored Procedures:** Applied in all Data Manipulation Language (DML) operations.
 
 ## Diagrams 📊
-
-<div style="text-align: center;">
-  <p>
-    <a href="/img/class_diagram.png" target="_blank">
-      <img src="/img/class_diagram.png" width="400" height="500" alt="Class Diagram"/>
-    </a>
+  <p align="center">
+  <a href="/img/class_diagram.png" target="_blank">
+    <img src="/img/class_diagram.png" width="543" height="672" alt="Class Diagram"/></a>
   </p>
-  <p>
+  <p align="center">
     <a href="/img/userCases.png" target="_blank">
-      <img src="/img/userCases.png" width="300" height="300" alt="Class Diagram"/>
-    </a>
+      <img src="/img/userCases.png" width="390" height="405" alt="Class Diagram"/></a>
     <a href="/img/userDiagram.png" target="_blank">
-      <img src="/img/userDiagram.png" width="300" height="300" alt="Class Diagram"/>
-    </a>
+      <img src="/img/userDiagram.png" width="600" height="390" alt="Class Diagram"/></a>
   </p>
-</div>
+
 
 
 ## How to Use 🚀

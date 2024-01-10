@@ -32,11 +32,11 @@ To ensure robust security:
     </a>
   </p>
   <p>
-    <a href="/img/class_diagram.png" target="_blank">
-      <img src="/img/class_diagram.png" width="300" height="300" alt="Class Diagram"/>
+    <a href="/img/userCases.png" target="_blank">
+      <img src="/img/userCases.png" width="300" height="300" alt="Class Diagram"/>
     </a>
-    <a href="/img/class_diagram.png" target="_blank">
-      <img src="/img/class_diagram.png" width="300" height="300" alt="Class Diagram"/>
+    <a href="/img/userDiagram.png" target="_blank">
+      <img src="/img/userDiagram.png" width="300" height="300" alt="Class Diagram"/>
     </a>
   </p>
 </div>
